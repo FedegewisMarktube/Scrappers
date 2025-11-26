@@ -1,0 +1,23 @@
+# =========================
+# Proyecto Scrapper Computrabajo
+# =========================
+
+# Carpeta de caché de ofertas individuales (NO se sube a Git)
+**/data/ofertas_detalle/
+
+# Archivos generados automáticamente
+*.csv
+*.json
+
+# Caché de Python
+__pycache__/
+*.pyc
+
+# Entornos virtuales
+venv/
+.env
+.env.*
+
+# Archivos temporales del sistema operativo
+.DS_Store
+Thumbs.db
