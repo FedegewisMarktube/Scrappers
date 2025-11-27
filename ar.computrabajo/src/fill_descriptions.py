@@ -169,24 +169,163 @@ def construir_diccionario_descripciones(links: list[str]) -> dict[str, str]:
     return descripciones
 
 
-# ========== 3) LIMPIAR Y RELLENAR PANEL DERECHO ==========
+# ========== 3) INYECTAR .descripcion_scrapeada + CSS + JS ==========
 
-def limpiar_descripciones_previas(soup: BeautifulSoup) -> None:
+def limpiar_inyecciones_previas(soup: BeautifulSoup) -> None:
     """
-    Si en algún momento metimos <div class="descripcion_scrapeada"> en las cards,
-    acá las borramos para dejar limpia la columna izquierda.
+    Limpia todo lo que hayamos metido en pasadas anteriores:
+    - div.descripcion_scrapeada
+    - <style> y <script> con data-custom-ofertas="1"
     """
     for old in soup.select("div.descripcion_scrapeada"):
         old.decompose()
 
+    for style in soup.find_all("style", attrs={"data-custom-ofertas": True}):
+        style.decompose()
 
-def inyectar_en_panel_derecho(descripciones: dict[str, str]) -> None:
+    for script in soup.find_all("script", attrs={"data-custom-ofertas": True}):
+        script.decompose()
+
+
+def agregar_css_personalizado(soup: BeautifulSoup) -> None:
+    head = soup.head
+    if not head:
+        return
+
+    css = """
+.descripcion_scrapeada {
+    display: none !important;
+}
+
+[data-offers-grid-loading-container] {
+    display: none !important;
+}
+    """.strip()
+
+    style_tag = soup.new_tag("style", attrs={"data-custom-ofertas": "1"})
+    style_tag.string = css
+    head.append(style_tag)
+
+
+def agregar_script_personalizado(soup: BeautifulSoup) -> None:
+    body = soup.body
+    if not body:
+        return
+
+    js = r"""
+document.addEventListener('DOMContentLoaded', function () {
+
+    const offers = document.querySelectorAll('.box_offer');
+    const detailBox = document.querySelector('[data-offers-grid-box-detail]');
+    if (!detailBox) return;
+
+    const detailContainer = detailBox.querySelector('[data-offers-grid-detail-container]');
+    if (!detailContainer) return;
+
+    offers.forEach(offer => {
+        offer.addEventListener('click', () => {
+
+            // marcar oferta seleccionada en la lista
+            document.querySelectorAll('.box_offer.sel').forEach(o => o.classList.remove('sel'));
+            offer.classList.add('sel');
+
+            const title   = (offer.querySelector('h2') || {}).innerText || '';
+            const company = (offer.querySelector('p:nth-of-type(1)') || {}).innerText || '';
+            const place   = (offer.querySelector('p:nth-of-type(2)') || {}).innerText || '';
+            const descDiv = offer.querySelector('.descripcion_scrapeada');
+
+            if (!descDiv) return;
+
+            const lines = Array.from(descDiv.querySelectorAll('p'))
+                .map(p => p.innerText.trim())
+                .filter(p => p.length > 0);
+
+            let html = "";
+
+            lines.forEach(line => {
+
+                // Títulos tipo "Descripción", "Requisitos", etc.
+                if (/^(Descripción|Responsabilidades|Requisitos|Principales|Perfil|La empresa ofrece|Funciones|Sobre|Requerimientos)/i.test(line)) {
+                    html += `<h3 style="margin:20px 0 10px 0; font-size:18px; font-weight:bold;">${line}</h3>`;
+                    return;
+                }
+
+                // Bullets con guiones
+                if (/^\s*-\s*/.test(line)) {
+                    html += `<p style="margin:0 0 8px 0;">• ${line.replace(/^\s*-\s*/, "")}</p>`;
+                    return;
+                }
+
+                // Bullets con asteriscos
+                if (line.includes("*")) {
+                    html += `<p style="margin:0 0 8px 0;">• ${line.replace(/\*/g, "").trim()}</p>`;
+                    return;
+                }
+
+                // Líneas cortas de info (A convenir, Jornada, etc.)
+                if (line.length < 25 &&
+                    /(A convenir|Jornada|Contrato|Presencial|Eventual|Indeterminado|Completa|Turnos|Part time)/i.test(line)) {
+                    html += `<p style="margin:0 0 10px 0; font-weight:bold;">${line}</p>`;
+                    return;
+                }
+
+                // Párrafo normal
+                html += `<p style="margin:0 0 12px 0;">${line}</p>`;
+            });
+
+            detailContainer.classList.remove('hide');
+
+            detailContainer.innerHTML = `
+                <div class="box_border" style="padding:20px;">
+
+                    <h1 class="fs22 fwB" style="margin-bottom:5px;">
+                        ${title}
+                    </h1>
+
+                    <p class="fwB" style="margin:0;">${company}</p>
+                    <p style="margin:0 0 15px 0;">${place}</p>
+
+                    <div style="margin:15px 0;">
+                        <button style="
+                            background:#0D3878;
+                            color:#fff;
+                            padding:10px 20px;
+                            border-radius:25px;
+                            border:none;
+                            font-weight:bold;
+                            cursor:pointer;">
+                            Postularme
+                        </button>
+                    </div>
+
+                    <div style="font-size:15px; line-height:1.5;">
+                        ${html}
+                    </div>
+
+                </div>
+            `;
+        });
+    });
+
+    // dispara la primera oferta al cargar
+    if (offers.length > 0) {
+        offers[0].click();
+    }
+});
+    """.strip()
+
+    script_tag = soup.new_tag("script", attrs={"data-custom-ofertas": "1"})
+    script_tag.string = js
+    body.append(script_tag)
+
+
+def inyectar_descripciones_y_script(descripciones: dict[str, str]) -> None:
     """
     Para cada buenos_aires_pX.html:
-    - encuentra la oferta seleccionada (article.box_offer.sel)
-    - busca su descripción en el dict (o la descarga si falta)
-    - reemplaza el contenido de <div class="description_offer"> por
-      título, empresa, ubicación y texto de la oferta.
+    - limpia inyecciones anteriores
+    - añade un div.descripcion_scrapeada con <p> dentro de cada article.box_offer
+      para el que tengamos descripción (usando caché o descargando en el momento)
+    - añade el CSS y el script personalizados
     """
     for archivo in sorted(os.listdir(DATA_DIR)):
         if not (archivo.startswith("buenos_aires_p") and archivo.endswith(".html")):
@@ -199,98 +338,61 @@ def inyectar_en_panel_derecho(descripciones: dict[str, str]) -> None:
 
         soup = BeautifulSoup(html, "html.parser")
 
-        # 1) limpiamos cualquier cosa vieja que hayamos metido en las cards
-        limpiar_descripciones_previas(soup)
+        # 1) limpiar cosas viejas
+        limpiar_inyecciones_previas(soup)
 
-        # 2) buscamos la oferta seleccionada
-        card_sel = soup.find("article", class_="box_offer sel")
-        if not card_sel:
-            print("   ⚠ No encontré .box_offer.sel en esta página, la dejo igual.")
-            continue
-
-        link_tag = card_sel.find("a", href=True)
-        if not link_tag:
-            print("   ⚠ La oferta seleccionada no tiene <a href>, la dejo igual.")
-            continue
-
-        href = link_tag["href"].strip().split("#")[0]
-
-        # 3) buscamos la descripción; si no está en el dict, la bajamos ahora
-        desc = descripciones.get(href)
-        if not desc:
-            html_detalle = descargar_html_detalle(href)
-            if html_detalle:
-                desc = extraer_descripcion(html_detalle)
-
-        if not desc:
-            print("   ⚠ No tengo descripción para esta oferta, no toco el panel derecho.")
-            continue
-
-        # 4) sacamos título / empresa / ubicación de la card seleccionada
-        title = ""
-        company = ""
-        location = ""
-
-        h2 = card_sel.find("h2")
-        if h2:
-            title = h2.get_text(strip=True)
-
-        ps = card_sel.find_all("p")
-        if len(ps) >= 1:
-            company = ps[0].get_text(strip=True)
-        if len(ps) >= 2:
-            # normalmente el último p es la ubicación
-            location = ps[-1].get_text(strip=True)
-
-        # 5) encontramos el contenedor del panel derecho
-        panel = soup.find("div", class_="description_offer")
-        if not panel:
-            print("   ⚠ No encontré <div class=\"description_offer\">, no puedo rellenar.")
-            continue
-
-        # por dentro suele haber un <div> más; si no, lo creamos
-        inner = panel.find("div")
-        if inner is None:
-            inner = soup.new_tag("div")
-            panel.clear()
-            panel.append(inner)
-        else:
-            inner.clear()
-
-        # 6) construimos el contenido "como en la página"
-        if title:
-            h_title = soup.new_tag("h2")
-            h_title.string = title
-            inner.append(h_title)
-
-        if company or location:
-            p_header = soup.new_tag("p")
-            texto_header = company
-            if company and location:
-                texto_header += " · " + location
-            elif location:
-                texto_header = location
-            p_header.string = texto_header
-            inner.append(p_header)
-
-        # línea separadora
-        hr = soup.new_tag("hr")
-        inner.append(hr)
-
-        # descripción en párrafos
-        for linea in desc.split("\n"):
-            linea = linea.strip()
-            if not linea:
+        # 2) recorrer todas las cards de ofertas
+        for card in soup.select("article.box_offer"):
+            link_tag = card.find("a", href=True)
+            if not link_tag:
                 continue
-            p = soup.new_tag("p")
-            p.string = linea
-            inner.append(p)
 
-        # 7) guardamos cambios
+            href = link_tag["href"].strip().split("#")[0]
+
+            desc = descripciones.get(href)
+            if not desc:
+                # si no la tenemos en el dict, la descargamos ahora
+                html_detalle = descargar_html_detalle(href)
+                if html_detalle:
+                    desc = extraer_descripcion(html_detalle)
+                    if desc:
+                        descripciones[href] = desc
+
+            if not desc:
+                continue
+
+            desc = desc.strip()
+            if not desc:
+                continue
+
+            # crear el contenedor oculto de descripción
+            desc_div = soup.new_tag("div", attrs={"class": "descripcion_scrapeada"})
+
+            # separar en párrafos por líneas en blanco
+            paragraphs = re.split(r"\n\s*\n+", desc)
+            if not paragraphs:
+                paragraphs = [desc]
+
+            for par in paragraphs:
+                par = par.strip()
+                if not par:
+                    continue
+                p_tag = soup.new_tag("p")
+                p_tag.string = par
+                desc_div.append(p_tag)
+
+            # lo agregamos al final de la card
+            card.append(desc_div)
+
+        # 3) CSS y JS personalizados
+        agregar_css_personalizado(soup)
+        agregar_script_personalizado(soup)
+
+        # 4) guardar cambios
         with open(ruta, "w", encoding="utf-8") as f:
             f.write(str(soup))
 
-        print("   ✅ Panel derecho rellenado con la oferta seleccionada.")
+        print("   ✅ Descripciones, CSS y JS inyectados en la página.")
 
 
 # ========== MAIN ==========
@@ -302,8 +404,8 @@ def main():
     print("\n2️⃣ Descargando y extrayendo descripciones (máx. 20 ofertas)...")
     descripciones = construir_diccionario_descripciones(links)
 
-    print("\n3️⃣ Rellenando panel derecho en cada buenos_aires_pX.html...")
-    inyectar_en_panel_derecho(descripciones)
+    print("\n3️⃣ Inyectando descripciones, CSS y JS en cada buenos_aires_pX.html...")
+    inyectar_descripciones_y_script(descripciones)
 
     print("\n🎉 Listo. Revisá tus archivos buenos_aires_pX.html en la carpeta data/.")
 
