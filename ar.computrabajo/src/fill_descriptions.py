@@ -26,7 +26,7 @@ HEADERS = {
 }
 
 REQUEST_DELAY_SECONDS = 2.0  # tiempo entre requests al sitio
-MAX_OFERTAS = 20             # por ahora probamos con 20 ofertas
+MAX_OFERTAS = None           # None = procesa TODOS los links encontrados
 
 
 # ========== 1) SACAR LINKS DESDE TUS LISTADOS LOCALES ==========
@@ -141,7 +141,7 @@ def extraer_descripcion(html_detalle: str) -> str:
 def construir_diccionario_descripciones(links: list[str]) -> dict[str, str]:
     """
     Devuelve un dict {href_base: descripcion}.
-    Solo procesa hasta MAX_OFERTAS si está configurado.
+    Si MAX_OFERTAS es None, procesa todos los links.
     """
     descripciones: dict[str, str] = {}
 
@@ -173,18 +173,22 @@ def construir_diccionario_descripciones(links: list[str]) -> dict[str, str]:
 
 def limpiar_inyecciones_previas(soup: BeautifulSoup) -> None:
     """
-    Limpia todo lo que hayamos metido en pasadas anteriores:
-    - div.descripcion_scrapeada
-    - <style> y <script> con data-custom-ofertas="1"
-    """
-    for old in soup.select("div.descripcion_scrapeada"):
-        old.decompose()
+    Limpia cosas que hayamos metido en pasadas anteriores:
+    - <style> con data-custom-ofertas="1"
+    - <script> con data-custom-ofertas="1"
+    - div.aviso_sin_descripcion
 
+    NO borra div.descripcion_scrapeada para poder detectar
+    qué ofertas ya están procesadas y no reprocesarlas.
+    """
     for style in soup.find_all("style", attrs={"data-custom-ofertas": True}):
         style.decompose()
 
     for script in soup.find_all("script", attrs={"data-custom-ofertas": True}):
         script.decompose()
+
+    for aviso in soup.select("div.aviso_sin_descripcion"):
+        aviso.decompose()
 
 
 def agregar_css_personalizado(soup: BeautifulSoup) -> None:
@@ -195,6 +199,17 @@ def agregar_css_personalizado(soup: BeautifulSoup) -> None:
     css = """
 .descripcion_scrapeada {
     display: none !important;
+    font-weight: normal;
+    line-height: 1.4;
+    white-space: pre-line;
+}
+
+/* cartel rojo en la card de la izquierda cuando no hay descripción real */
+.aviso_sin_descripcion {
+    font-size: 12px;
+    color: #b3261e;
+    font-weight: bold;
+    margin-bottom: 6px;
 }
 
 [data-offers-grid-loading-container] {
@@ -212,6 +227,7 @@ def agregar_script_personalizado(soup: BeautifulSoup) -> None:
     if not body:
         return
 
+    # JS simplificado: solo arma párrafos y bullets.
     js = r"""
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -243,34 +259,14 @@ document.addEventListener('DOMContentLoaded', function () {
             let html = "";
 
             lines.forEach(line => {
-
-                // Títulos tipo "Descripción", "Requisitos", etc.
-                if (/^(Descripción|Responsabilidades|Requisitos|Principales|Perfil|La empresa ofrece|Funciones|Sobre|Requerimientos)/i.test(line)) {
-                    html += `<h3 style="margin:20px 0 10px 0; font-size:18px; font-weight:bold;">${line}</h3>`;
-                    return;
+                // bullets con - o *
+                if (/^\s*[-*]\s+/.test(line)) {
+                    const txt = line.replace(/^\s*[-*]\s+/, "");
+                    html += `<p style="margin:0 0 8px 0;">• ${txt}</p>`;
+                } else {
+                    // párrafo normal
+                    html += `<p style="margin:0 0 10px 0;">${line}</p>`;
                 }
-
-                // Bullets con guiones
-                if (/^\s*-\s*/.test(line)) {
-                    html += `<p style="margin:0 0 8px 0;">• ${line.replace(/^\s*-\s*/, "")}</p>`;
-                    return;
-                }
-
-                // Bullets con asteriscos
-                if (line.includes("*")) {
-                    html += `<p style="margin:0 0 8px 0;">• ${line.replace(/\*/g, "").trim()}</p>`;
-                    return;
-                }
-
-                // Líneas cortas de info (A convenir, Jornada, etc.)
-                if (line.length < 25 &&
-                    /(A convenir|Jornada|Contrato|Presencial|Eventual|Indeterminado|Completa|Turnos|Part time)/i.test(line)) {
-                    html += `<p style="margin:0 0 10px 0; font-weight:bold;">${line}</p>`;
-                    return;
-                }
-
-                // Párrafo normal
-                html += `<p style="margin:0 0 12px 0;">${line}</p>`;
             });
 
             detailContainer.classList.remove('hide');
@@ -322,34 +318,61 @@ document.addEventListener('DOMContentLoaded', function () {
 def inyectar_descripciones_y_script(descripciones: dict[str, str]) -> None:
     """
     Para cada buenos_aires_pX.html:
-    - limpia inyecciones anteriores
-    - añade un div.descripcion_scrapeada con <p> dentro de cada article.box_offer
-      para el que tengamos descripción (usando caché o descargando en el momento)
-    - añade el CSS y el script personalizados
+    - Detecta cuántas ofertas ya están procesadas (tienen .descripcion_scrapeada)
+      y cuántas no.
+    - NO toca las ofertas ya procesadas.
+    - Añade un div.descripcion_scrapeada solo a las ofertas que falten,
+      usando el dict de descripciones (o descargando en el momento).
+    - Añade el CSS y el script personalizados.
     """
     for archivo in sorted(os.listdir(DATA_DIR)):
         if not (archivo.startswith("buenos_aires_p") and archivo.endswith(".html")):
             continue
 
         ruta = os.path.join(DATA_DIR, archivo)
-        print(f"\n🛠 Modificando {archivo}...")
+        print(f"\n🛠 Analizando {archivo}...")
         with open(ruta, "r", encoding="utf-8") as f:
             html = f.read()
 
         soup = BeautifulSoup(html, "html.parser")
 
-        # 1) limpiar cosas viejas
+        # Todas las cards de ofertas
+        cards = soup.select("article.box_offer")
+
+        total_cards = len(cards)
+        ya_procesadas = 0
+        pendientes = 0
+
+        # Contar procesadas vs pendientes
+        for card in cards:
+            if card.select_one("div.descripcion_scrapeada"):
+                ya_procesadas += 1
+            else:
+                pendientes += 1
+
+        print(f"   👉 Ofertas totales: {total_cards}")
+        print(f"   ✅ Ya procesadas : {ya_procesadas}")
+        print(f"   ⏳ Pendientes     : {pendientes}")
+
+        # Limpiar SOLO CSS/JS viejo y avisos, no las descripciones
         limpiar_inyecciones_previas(soup)
 
-        # 2) recorrer todas las cards de ofertas
-        for card in soup.select("article.box_offer"):
+        # Procesar solo las ofertas pendientes
+        for card in cards:
+            # si ya tiene descripcion_scrapeada, la dejamos como está
+            if card.select_one("div.descripcion_scrapeada"):
+                continue
+
             link_tag = card.find("a", href=True)
             if not link_tag:
                 continue
 
             href = link_tag["href"].strip().split("#")[0]
 
+            # Intentamos obtener la descripción "real"
             desc = descripciones.get(href)
+            placeholder = False
+
             if not desc:
                 # si no la tenemos en el dict, la descargamos ahora
                 html_detalle = descargar_html_detalle(href)
@@ -358,14 +381,20 @@ def inyectar_descripciones_y_script(descripciones: dict[str, str]) -> None:
                     if desc:
                         descripciones[href] = desc
 
+            # Si sigue sin descripción (ej: HTTP 404), usamos placeholder
             if not desc:
-                continue
+                placeholder = True
+                desc = (
+                    "Descripción no disponible. "
+                    "Esta oferta ya no existe en el sitio original de Computrabajo."
+                )
 
             desc = desc.strip()
             if not desc:
+                # caso ultra extremo, no hacemos nada
                 continue
 
-            # crear el contenedor oculto de descripción
+            # crear el contenedor de descripción
             desc_div = soup.new_tag("div", attrs={"class": "descripcion_scrapeada"})
 
             # separar en párrafos por líneas en blanco
@@ -381,18 +410,24 @@ def inyectar_descripciones_y_script(descripciones: dict[str, str]) -> None:
                 p_tag.string = par
                 desc_div.append(p_tag)
 
+            # si es placeholder, agregamos también un cartel en la card de la izquierda
+            if placeholder:
+                aviso_div = soup.new_tag("div", attrs={"class": "aviso_sin_descripcion"})
+                aviso_div.string = "Esta oferta ya no tiene descripción disponible (detalle 404)."
+                card.insert(0, aviso_div)
+
             # lo agregamos al final de la card
             card.append(desc_div)
 
-        # 3) CSS y JS personalizados
+        # CSS y JS personalizados (se aplican igual para todo el archivo)
         agregar_css_personalizado(soup)
         agregar_script_personalizado(soup)
 
-        # 4) guardar cambios
+        # guardar cambios
         with open(ruta, "w", encoding="utf-8") as f:
             f.write(str(soup))
 
-        print("   ✅ Descripciones, CSS y JS inyectados en la página.")
+        print("   ✅ Archivo actualizado con CSS/JS nuevos y ofertas pendientes completadas.")
 
 
 # ========== MAIN ==========
@@ -401,7 +436,7 @@ def main():
     print("1️⃣ Buscando links de ofertas en tus páginas locales...")
     links = obtener_links_desde_listados()
 
-    print("\n2️⃣ Descargando y extrayendo descripciones (máx. 20 ofertas)...")
+    print("\n2️⃣ Descargando y extrayendo descripciones (todas las ofertas únicas)...")
     descripciones = construir_diccionario_descripciones(links)
 
     print("\n3️⃣ Inyectando descripciones, CSS y JS en cada buenos_aires_pX.html...")
