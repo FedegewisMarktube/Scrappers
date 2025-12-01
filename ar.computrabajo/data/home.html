@@ -483,124 +483,43 @@
         <div id="slider-container">
 
             <div class="box_search slider-item sel" data-position="1" data-box-search-inputs-container data-autocomplete-add-classes-when-opening-target>
+    <div>
+        <div class="field_input_icon posRel mb0" data-type-search="prof-cat" data-input-focusable-container>
+            <form autocomplete="off" class="cont">
+                <span class="icon i_find"></span>
 
-                <div>
+                <input id="prof-cat-search-input-holder" type="hidden" value="" />
+                <input id="prof-cat-search-input"
+                       type="search"
+                       placeholder="Cargo o categoría"
+                       autocomplete="off"
+                       data-autocomplete-method="POST"
+                       data-autocomplete-url="https://ar.computrabajo.com/ajax/geticonquerysuggest"
+                       data-autocomplete-icondesign-enable="true"
+                       data-autocomplete-idholder="prof-cat-search-input-holder"
+                       data-autocomplete-add-classes-when-opening="b_radius_search_input"
+                       data-autocomplete-show-summary="true"
+                       data-autocomplete-openonclick=true
+                       data-autocomplete-summary-latest-searches-lit="Últimas búsquedas"
+                       data-autocomplete-summary-generic-lit="Empleos más demandados"
+                       data-searchbox-query-baseprofurl="/trabajo-de-"
+                       data-autocomplete-select-first-ocurrence="false"
+                       data-input-focusable
+                       value="" />
 
-                    <div class="field_input_icon posRel mb0" data-type-search="prof-cat" data-input-focusable-container>
+                <span id="prof-cat-clean-button" onclick="" class="hide">
+                    <span class="icon i_close"></span>
+                </span>
+            </form>
+        </div>
+    </div>
 
-                        <form autocomplete="off" class="cont">
+        <button id="search-button" class="b_primary rounded mlAuto">
+            <span class="icon i_search"></span>
+            <span>Buscar empleos</span>
+        </button>
+    </div>
 
-                            <span class="icon i_find"></span>
-
-
-
-                            <input id="prof-cat-search-input-holder" type="hidden" value="" />
-
-                            <input id="prof-cat-search-input"
-
-                                   type="search"
-
-                                   placeholder="Cargo o categoría"
-
-                                   autocomplete="off"
-
-                                   data-autocomplete-method="POST"
-
-                                   data-autocomplete-url="https://ar.computrabajo.com/ajax/geticonquerysuggest"
-
-                                   data-autocomplete-icondesign-enable="true"
-
-                                   data-autocomplete-idholder="prof-cat-search-input-holder"
-
-                                   data-autocomplete-add-classes-when-opening="b_radius_search_input"
-
-                                   data-autocomplete-show-summary="true"
-
-                            data-autocomplete-openonclick=true
-
-                                   data-autocomplete-summary-latest-searches-lit="Últimas búsquedas"
-
-                                   data-autocomplete-summary-generic-lit="Empleos más demandados"
-
-                                   data-searchbox-query-baseprofurl="/trabajo-de-"
-
-                                   data-autocomplete-select-first-ocurrence="false"
-
-                                   data-input-focusable
-
-                                   value="" />
-
-
-
-                            <span id="prof-cat-clean-button" onclick="" class="hide"><span class="icon i_close"></span></span>
-
-                        </form>
-
-                    </div>
-
-                    <div class="field_input_icon posRel bl1 mb0" data-type-search="place" data-input-focusable-container>
-
-                        <form autocomplete="off" class="cont">
-
-                            <span class="icon i_address"></span>
-
-                            <input id="hdurlw" type="hidden" value="https://ar.computrabajo.com" />
-
-                            <input id="place-search-input-holder" type="hidden" value="" />
-
-                            <input id="place-search-input"
-
-                                   type="search"
-
-                                   placeholder="Lugar"
-
-                                   autocomplete="off"
-
-                                   data-autocomplete-method="POST"
-
-                                   data-autocomplete-url="https://ar.computrabajo.com/ajax/geticonplacessuggest"
-
-                                   data-autocomplete-icondesign-enable="true"
-
-                                   data-autocomplete-idholder="place-search-input-holder"
-
-                                   data-autocomplete-openonclick="true"
-
-                                   data-searchbox-query-baseplaceurl="/empleos-en-"
-
-                                   data-searchbox-query-concatplaceurl="-en-"
-
-                                   data-searchbox-query-place-replacewordurl="/empleos"
-
-                                   data-autocomplete-select-first-ocurrence="false"
-
-                                   data-input-focusable
-
-                                   data-my-position-enabled="true"
-
-                                   data-my-position-literal="Mi ubicación"
-
-                                   value="" />
-
-
-
-                            <span id="place-clean-button" onclick="" class="hide"><span class="icon i_close"></span></span>
-
-                        </form>
-
-                    </div>
-
-                </div>
-
-                <button id="search-button" class="b_primary rounded mlAuto">
-
-                    <span class="icon i_search"></span>
-
-                    <span>Buscar empleos</span>
-
-                </button>
-
-            </div>
 
         </div>
 
@@ -666,9 +585,22 @@
 
 		<div class="tc container">
 
-				<h2 class="mt30 w60 mAuto mb30">Hoy hay <strong>4.843</strong> empresas contratando con las mejores vacantes para ti</h2>
+		<h2 class="mt30 w60 mAuto mb30">
+    Hoy hay <strong>4.843</strong> empresas contratando con las mejores vacantes para ti
+        </h2>
 
-				<div id="dfplogosh" class="tc" style="height:220px"></div>
+        <div class="mt20 dFlex tc_fx fx_wrap">
+            <a href="../data/buenos_aires/buenos_aires_p1.html" class="b_primary big mr10 mb10">
+                Buenos Aires
+            </a>
+            <a href="../data/cordoba/cordoba_p1.html" class="b_primary big mr10 mb10">
+                Córdoba
+            </a>
+            <a href="../data/mendoza/mendoza_p1.html" class="b_primary big mb10">
+                Mendoza
+            </a>
+        </div>
+
 
 			
 
@@ -2555,36 +2487,37 @@
   "@type": "WebPage"
 
 }] }</script>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  var input = document.getElementById('prof-cat-search-input');
-  var boton = document.getElementById('search-button');
+    (function() {
+      var input = document.getElementById('prof-cat-search-input');
+      var boton = document.getElementById('search-button');
 
-  if (!input || !boton) return;
+      if (!input || !boton) return;
 
-  function irALocal() {
-    var term = input.value ? input.value.trim() : '';
-    var url = './buenos_aires_p1.html';
-    if (term) {
-      url += '?q=' + encodeURIComponent(term);
-    }
-    window.location.href = url;
-  }
+      function irALocal() {
+        var term = input.value ? input.value.trim() : '';
+        var url = './buenos_aires_p1.html';
+        if (term) {
+          url += '?q=' + encodeURIComponent(term);
+        }
+        window.location.href = url;
+      }
 
-  boton.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    irALocal();
-  });
+      boton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        irALocal();
+      });
 
-  input.addEventListener('keyup', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      irALocal();
-    }
-  });
-});
-</script>
+      input.addEventListener('keyup', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          irALocal();
+        }
+      });
+    })();
+    </script>
 
 </body>
 

@@ -5081,107 +5081,78 @@ Más de 30 días</p></div></article>
 }] }</script>
 
   // Script buscador 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  // Input "Cargo o categoría"
-  var input = document.querySelector('input[placeholder="Cargo o categoría"]');
+    <!-- …todos los scripts de Computrabajo que ya venían… -->
 
-  // Botón "Buscar empleos" (puede ser button o div)
-  var boton = null;
-  var todos = document.querySelectorAll('*');
-  for (var i = 0; i < todos.length; i++) {
-    if (todos[i].textContent && todos[i].textContent.trim() === 'Buscar empleos') {
-      boton = todos[i];
-      break;
-    }
-  }
+    <!-- 👇 SCRIPT DEL BUSCADOR LOCAL -->
+    <script>
+    (function () {
+      // Input "Cargo o categoría"
+      var input = document.querySelector('input[placeholder="Cargo o categoría"]');
 
-  // Todas las ofertas de la página
-  var offers = Array.prototype.slice.call(document.querySelectorAll('.box_offer'));
-
-  function seleccionarPrimeraVisible() {
-    var firstVisible = null;
-
-    for (var i = 0; i < offers.length; i++) {
-      var o = offers[i];
-      // visible si no está display:none
-      if (o.style.display !== 'none') {
-        firstVisible = o;
-        break;
+      // Botón "Buscar empleos" (puede ser button o div)
+      var boton = null;
+      var todos = document.querySelectorAll('*');
+      for (var i = 0; i < todos.length; i++) {
+        if (todos[i].textContent && todos[i].textContent.trim() === 'Buscar empleos') {
+          boton = todos[i];
+          break;
+        }
       }
-    }
 
-    if (firstVisible) {
-      firstVisible.click(); // dispara el script que llena el panel derecho
-    } else {
-      // Si no hay resultados, limpiar el panel derecho
-      var detailBox = document.querySelector('[data-offers-grid-box-detail]');
-      var detailContainer = detailBox
-        ? detailBox.querySelector('[data-offers-grid-detail-container]')
-        : null;
+      // Todas las ofertas de la página
+      var offers = Array.prototype.slice.call(document.querySelectorAll('.box_offer'));
 
-      if (detailContainer) {
-        detailContainer.innerHTML =
-          '<div style="padding:20px; font-size:16px;">' +
-          'No se encontraron ofertas para esta búsqueda.' +
-          '</div>';
+      function filtrar() {
+        var term = '';
+        if (input && input.value) {
+          term = input.value.trim().toLowerCase();
+        }
+
+        var count = 0;
+
+        for (var i = 0; i < offers.length; i++) {
+          var oferta = offers[i];
+          var contenido = oferta.innerText.toLowerCase();
+
+          if (!term || contenido.indexOf(term) !== -1) {
+            oferta.style.display = '';
+            count++;
+          } else {
+            oferta.style.display = 'none';
+          }
+        }
+
+        console.log('Filtradas:', count);
+        // 👉 NO auto-clickeamos nada: vos elegís y clickeás la oferta que quieras.
       }
-    }
-  }
 
-  function filtrar() {
-    var term = '';
-    if (input && input.value) {
-      term = input.value.trim().toLowerCase();
-    }
-
-    var count = 0;
-
-    for (var i = 0; i < offers.length; i++) {
-      var oferta = offers[i];
-      var contenido = oferta.innerText.toLowerCase();
-
-      if (!term || contenido.indexOf(term) !== -1) {
-        oferta.style.display = '';
-        count++;
-      } else {
-        oferta.style.display = 'none';
+      // Click en "Buscar empleos"
+      if (boton) {
+        boton.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          filtrar();
+        });
       }
-    }
 
-    console.log('Filtradas:', count);
-    seleccionarPrimeraVisible();
-  }
+      // Enter en el input
+      if (input) {
+        input.addEventListener('keyup', function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            filtrar();
+          }
+        });
+      }
 
-  // Click en "Buscar empleos"
-  if (boton) {
-    boton.addEventListener('click', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      filtrar();
-    });
-  }
-
-  // Enter en el input
-  if (input) {
-    input.addEventListener('keyup', function (e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
+      // Si viene ?q= en la URL, autocompletar y filtrar
+      var params = new URLSearchParams(window.location.search);
+      var q = params.get('q');
+      if (q && input) {
+        input.value = q;
         filtrar();
       }
-    });
-  }
-
-  // Si viene ?q= en la URL, autocompletar y filtrar
-  var params = new URLSearchParams(window.location.search);
-  var q = params.get('q');
-  if (q && input) {
-    input.value = q;
-    filtrar(); // acá ya filtra y hace click en la primera visible
-  }
-});
-</script>
-
-
+    })();
+    </script>
 </body>
 </html>
