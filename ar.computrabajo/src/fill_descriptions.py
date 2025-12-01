@@ -27,6 +27,7 @@ HEADERS = {
 
 REQUEST_DELAY_SECONDS = 2.0  # tiempo entre requests al sitio
 MAX_OFERTAS = None           # None = procesa TODOS los links encontrados
+MAX_PAGES = 30                # 👈 máximo de páginas buenos_aires_pX.html a procesar
 
 
 # ========== 1) SACAR LINKS DESDE TUS LISTADOS LOCALES ==========
@@ -43,10 +44,14 @@ def obtener_links_desde_listados() -> list[str]:
     urls: list[str] = []
     vistos = set()
 
-    for archivo in sorted(os.listdir(DATA_DIR)):
-        if not (archivo.startswith("buenos_aires_p") and archivo.endswith(".html")):
-            continue
+    # 👉 armamos la lista de archivos y la cortamos en MAX_PAGES
+    archivos_ba = [
+        a for a in os.listdir(DATA_DIR)
+        if a.startswith("buenos_aires_p") and a.endswith(".html")
+    ]
+    archivos_ba = sorted(archivos_ba)[:MAX_PAGES]
 
+    for archivo in archivos_ba:
         ruta = os.path.join(DATA_DIR, archivo)
         print(f"📄 Leyendo {archivo}...")
         with open(ruta, "r", encoding="utf-8") as f:
@@ -66,6 +71,7 @@ def obtener_links_desde_listados() -> list[str]:
 
     print(f"✅ Encontradas {len(urls)} ofertas únicas en los listados.")
     return urls
+
 
 
 # ========== 2) BAJAR DETALLE Y EXTRAER DESCRIPCIÓN (CON CACHÉ) ==========
@@ -325,10 +331,14 @@ def inyectar_descripciones_y_script(descripciones: dict[str, str]) -> None:
       usando el dict de descripciones (o descargando en el momento).
     - Añade el CSS y el script personalizados.
     """
-    for archivo in sorted(os.listdir(DATA_DIR)):
-        if not (archivo.startswith("buenos_aires_p") and archivo.endswith(".html")):
-            continue
+    # 🔹 NUEVO: armar lista de archivos y cortarla en 30
+    archivos_ba = [
+        a for a in os.listdir(DATA_DIR)
+        if a.startswith("buenos_aires_p") and a.endswith(".html")
+    ]
+    archivos_ba = sorted(archivos_ba)[:30]   # 👈 acá está el límite a 30 páginas
 
+    for archivo in archivos_ba:
         ruta = os.path.join(DATA_DIR, archivo)
         print(f"\n🛠 Analizando {archivo}...")
         with open(ruta, "r", encoding="utf-8") as f:
@@ -428,7 +438,6 @@ def inyectar_descripciones_y_script(descripciones: dict[str, str]) -> None:
             f.write(str(soup))
 
         print("   ✅ Archivo actualizado con CSS/JS nuevos y ofertas pendientes completadas.")
-
 
 # ========== MAIN ==========
 
