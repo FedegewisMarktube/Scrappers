@@ -37,7 +37,7 @@
 <link href="../data/CSS/header_portal.css" rel="stylesheet"/>
 <header class="header_web" id="header_menu">
 <div class="container">
-<a class="logo" href="https://ar.computrabajo.com" title="Computrabajo">
+<a class="logo" href="../data/home.html" title="Computrabajo">
 <img alt="Computrabajo Argentina" class="logo_img" data-header-candidatos="" height="30" src="//cp.ct-stc.com/web8/20251126.01_01.26/c/img/logos/logoct.svg" srcset="//cp.ct-stc.com/web8/20251126.01_01.26/c/img/logos/logoct.svg" width="133"/>
 </a>
 <div class="box_search_content" data-box-search-container="">
@@ -204,6 +204,7 @@
 </div>
 </div>
 </header>
+
 <script>window.menuItemsResponsive = true;</script>
 <script>
 
@@ -5078,178 +5079,65 @@ Más de 30 días</p></div></article>
   "@type": "ItemList"
 
 }] }</script>
+
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
+  // 1) Detectar el input
+  const input = document.querySelector('input[placeholder="Cargo o categoría"]');
 
-    const offers = document.querySelectorAll('.box_offer');
-    const detailBox = document.querySelector('[data-offers-grid-box-detail]');
-    const detailContainer = detailBox.querySelector('[data-offers-grid-detail-container]');
+  // 2) Detectar el botón "Buscar empleos"
+  const boton = Array.from(document.querySelectorAll('*'))
+      .find(el => el.textContent.trim() === 'Buscar empleos');
 
-    offers.forEach(offer => {
-        offer.addEventListener('click', () => {
+  // 3) Todas las ofertas de esa página
+  const offers = Array.from(document.querySelectorAll('.box_offer'));
 
-            // selección visual
-            document.querySelectorAll('.box_offer.sel').forEach(o => o.classList.remove('sel'));
-            offer.classList.add('sel');
+  function filtrar() {
+    const term = (input?.value || '').trim().toLowerCase();
+    let count = 0;
 
-            const title   = offer.querySelector('h2')?.innerText || '';
-            const company = offer.querySelector('p:nth-of-type(1)')?.innerText || '';
-            const place   = offer.querySelector('p:nth-of-type(2)')?.innerText || '';
-            const descDiv = offer.querySelector('.descripcion_scrapeada');
-
-            if (!descDiv) return;
-
-            // EXTRAER EL TEXTO DE CADA <p>
-            const lines = Array.from(descDiv.querySelectorAll('p'))
-                .map(p => p.innerText.trim())
-                .filter(p => p.length > 0);
-
-            let html = "";
-
-            lines.forEach(line => {
-
-                // ---------- TITULOS ----------
-                if (/^(Descripción|Responsabilidades|Requisitos|Principales|Perfil|La empresa ofrece|Funciones|Sobre|Requerimientos)/i.test(line)) {
-                    html += `<h3 style="margin:20px 0 10px 0; font-size:18px; font-weight:bold;">${line}</h3>`;
-                    return;
-                }
-
-                // ---------- BULLETS: guiones ----------
-                if (/^\s*-\s*/.test(line)) {
-                    html += `<p style="margin:0 0 8px 0;">• ${line.replace(/^\s*-\s*/, "")}</p>`;
-                    return;
-                }
-
-                // ---------- BULLETS: asteriscos ----------
-                if (line.includes("*")) {
-                    html += `<p style="margin:0 0 8px 0;">• ${line.replace(/\*/g, "").trim()}</p>`;
-                    return;
-                }
-
-                // ---------- LÍNEAS CORTAS: info ----------
-                if (line.length < 25 &&
-                    /(A convenir|Jornada|Contrato|Presencial|Eventual|Indeterminado|Completa|Turnos|Part time)/i.test(line)) {
-                    html += `<p style="margin:0 0 10px 0; font-weight:bold;">${line}</p>`;
-                    return;
-                }
-
-                // ---------- DEFAULT: párrafo normal ----------
-                html += `<p style="margin:0 0 12px 0;">${line}</p>`;
-            });
-
-            // INSERTAR EN PANEL DERECHO
-            detailContainer.classList.remove('hide');
-
-            detailContainer.innerHTML = `
-                <div class="box_border" style="padding:20px;">
-
-                    <h1 class="fs22 fwB" style="margin-bottom:5px;">
-                        ${title}
-                    </h1>
-
-                    <p class="fwB" style="margin:0;">${company}</p>
-                    <p style="margin:0 0 15px 0;">${place}</p>
-
-                    <div style="margin:15px 0;">
-                        <button style="
-                            background:#0D3878;
-                            color:#fff;
-                            padding:10px 20px;
-                            border-radius:25px;
-                            border:none;
-                            font-weight:bold;
-                            cursor:pointer;">
-                            Postularme
-                        </button>
-                    </div>
-
-                    <div style="font-size:15px; line-height:1.5;">
-                        ${html}
-                    </div>
-
-                </div>
-            `;
-        });
+    offers.forEach(oferta => {
+      const contenido = oferta.innerText.toLowerCase();
+      if (!term || contenido.includes(term)) {
+        oferta.style.display = '';
+        count++;
+      } else {
+        oferta.style.display = 'none';
+      }
     });
+
+    console.log("Filtradas:", count);
+  }
+
+  // Click en "Buscar empleos"
+  if (boton) {
+    boton.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      filtrar();
+    });
+  }
+
+  // Enter en el input
+  if (input) {
+    input.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        filtrar();
+      }
+    });
+  }
+
+  // Si viene ?q= en la URL, autocompleta y filtra
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get('q');
+  if (q && input) {
+    input.value = q;
+    filtrar();
+  }
 });
 </script>
-<script data-custom-ofertas="1">document.addEventListener('DOMContentLoaded', function () {
 
-    const offers = document.querySelectorAll('.box_offer');
-    const detailBox = document.querySelector('[data-offers-grid-box-detail]');
-    if (!detailBox) return;
 
-    const detailContainer = detailBox.querySelector('[data-offers-grid-detail-container]');
-    if (!detailContainer) return;
-
-    offers.forEach(offer => {
-        offer.addEventListener('click', () => {
-
-            // marcar oferta seleccionada en la lista
-            document.querySelectorAll('.box_offer.sel').forEach(o => o.classList.remove('sel'));
-            offer.classList.add('sel');
-
-            const title   = (offer.querySelector('h2') || {}).innerText || '';
-            const company = (offer.querySelector('p:nth-of-type(1)') || {}).innerText || '';
-            const place   = (offer.querySelector('p:nth-of-type(2)') || {}).innerText || '';
-            const descDiv = offer.querySelector('.descripcion_scrapeada');
-
-            if (!descDiv) return;
-
-            const lines = Array.from(descDiv.querySelectorAll('p'))
-                .map(p => p.innerText.trim())
-                .filter(p => p.length > 0);
-
-            let html = "";
-
-            lines.forEach(line => {
-                // bullets con - o *
-                if (/^\s*[-*]\s+/.test(line)) {
-                    const txt = line.replace(/^\s*[-*]\s+/, "");
-                    html += `<p style="margin:0 0 8px 0;">• ${txt}</p>`;
-                } else {
-                    // párrafo normal
-                    html += `<p style="margin:0 0 10px 0;">${line}</p>`;
-                }
-            });
-
-            detailContainer.classList.remove('hide');
-
-            detailContainer.innerHTML = `
-                <div class="box_border" style="padding:20px;">
-
-                    <h1 class="fs22 fwB" style="margin-bottom:5px;">
-                        ${title}
-                    </h1>
-
-                    <p class="fwB" style="margin:0;">${company}</p>
-                    <p style="margin:0 0 15px 0;">${place}</p>
-
-                    <div style="margin:15px 0;">
-                        <button style="
-                            background:#0D3878;
-                            color:#fff;
-                            padding:10px 20px;
-                            border-radius:25px;
-                            border:none;
-                            font-weight:bold;
-                            cursor:pointer;">
-                            Postularme
-                        </button>
-                    </div>
-
-                    <div style="font-size:15px; line-height:1.5;">
-                        ${html}
-                    </div>
-
-                </div>
-            `;
-        });
-    });
-
-    // dispara la primera oferta al cargar
-    if (offers.length > 0) {
-        offers[0].click();
-    }
-});</script></body>
+</body>
 </html>

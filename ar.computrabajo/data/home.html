@@ -2556,6 +2556,39 @@
 
 }] }</script>
 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('prof-cat-search-input');
+  const boton = document.getElementById('search-button');
+
+  if (!input || !boton) return;
+
+  function irALocal() {
+    const term = (input.value || '').trim();
+    // Ajustá la ruta si tuvieras otra carpeta, pero por lo que vi es en /data/
+    let url = './buenos_aires_p1.html';
+    if (term) {
+      url += '?q=' + encodeURIComponent(term);
+    }
+    window.location.href = url;
+  }
+
+  boton.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    irALocal();
+  });
+
+  input.addEventListener('keyup', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      irALocal();
+    }
+  });
+});
+</script>
+
+
 </body>
 
 </html>
