@@ -5080,16 +5080,17 @@ Más de 30 días</p></div></article>
 
 }] }</script>
 
+  // Script buscador 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   // 1) Detectar el input
   const input = document.querySelector('input[placeholder="Cargo o categoría"]');
 
-  // 2) Detectar el botón "Buscar empleos"
+  // 2) Detectar el botón "Buscar empleos" aunque sea <div>, <button>, etc
   const boton = Array.from(document.querySelectorAll('*'))
       .find(el => el.textContent.trim() === 'Buscar empleos');
 
-  // 3) Todas las ofertas de esa página
+  // 3) Todas las ofertas
   const offers = Array.from(document.querySelectorAll('.box_offer'));
 
   function filtrar() {
@@ -5107,9 +5108,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     console.log("Filtradas:", count);
+
+    // 👉 Auto-seleccionar la primera oferta visible
+    const firstVisible = offers.find(o => o.style.display !== 'none');
+
+    if (firstVisible) {
+      firstVisible.click();   // dispara nuestro script de detalle derecho
+    } else {
+      // Si no hay resultados, limpiamos el panel derecho y mostramos mensaje
+      const detailBox = document.querySelector('[data-offers-grid-box-detail]');
+      const detailContainer = detailBox
+        ? detailBox.querySelector('[data-offers-grid-detail-container]')
+        : null;
+
+      if (detailContainer) {
+        detailContainer.innerHTML = `
+          <div style="padding:20px; font-size:16px;">
+            No se encontraron ofertas para "<strong>${term}</strong>".
+          </div>
+        `;
+      }
+    }
   }
 
-  // Click en "Buscar empleos"
+  // 4) Conectar el click
   if (boton) {
     boton.addEventListener('click', (e) => {
       e.preventDefault();
@@ -5118,7 +5140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Enter en el input
+  // 5) Conectar Enter
   if (input) {
     input.addEventListener('keyup', (e) => {
       if (e.key === 'Enter') {
@@ -5128,15 +5150,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Si viene ?q= en la URL, autocompleta y filtra
+  // 6) Autofiltrado si viene con ?q=
   const params = new URLSearchParams(window.location.search);
   const q = params.get('q');
   if (q && input) {
     input.value = q;
-    filtrar();
+    filtrar();   // acá ya va a dejar solo las que matchean y abrir la primera
   }
 });
 </script>
+
 
 
 </body>
