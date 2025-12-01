@@ -2555,31 +2555,29 @@
   "@type": "WebPage"
 
 }] }</script>
-
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const input = document.getElementById('prof-cat-search-input');
-  const boton = document.getElementById('search-button');
+document.addEventListener('DOMContentLoaded', function() {
+  var input = document.getElementById('prof-cat-search-input');
+  var boton = document.getElementById('search-button');
 
   if (!input || !boton) return;
 
   function irALocal() {
-    const term = (input.value || '').trim();
-    // Ajustá la ruta si tuvieras otra carpeta, pero por lo que vi es en /data/
-    let url = './buenos_aires_p1.html';
+    var term = input.value ? input.value.trim() : '';
+    var url = './buenos_aires_p1.html';
     if (term) {
       url += '?q=' + encodeURIComponent(term);
     }
     window.location.href = url;
   }
 
-  boton.addEventListener('click', (e) => {
+  boton.addEventListener('click', function(e) {
     e.preventDefault();
     e.stopPropagation();
     irALocal();
   });
 
-  input.addEventListener('keyup', (e) => {
+  input.addEventListener('keyup', function(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
       irALocal();
@@ -2588,8 +2586,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-
 </body>
+
 
 </html>
 

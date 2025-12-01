@@ -5082,67 +5082,89 @@ Más de 30 días</p></div></article>
 
   // Script buscador 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  // 1) Detectar el input
-  const input = document.querySelector('input[placeholder="Cargo o categoría"]');
+document.addEventListener('DOMContentLoaded', function () {
+  // Input "Cargo o categoría"
+  var input = document.querySelector('input[placeholder="Cargo o categoría"]');
 
-  // 2) Detectar el botón "Buscar empleos" aunque sea <div>, <button>, etc
-  const boton = Array.from(document.querySelectorAll('*'))
-      .find(el => el.textContent.trim() === 'Buscar empleos');
+  // Botón "Buscar empleos" (puede ser button o div)
+  var boton = null;
+  var todos = document.querySelectorAll('*');
+  for (var i = 0; i < todos.length; i++) {
+    if (todos[i].textContent && todos[i].textContent.trim() === 'Buscar empleos') {
+      boton = todos[i];
+      break;
+    }
+  }
 
-  // 3) Todas las ofertas
-  const offers = Array.from(document.querySelectorAll('.box_offer'));
+  // Todas las ofertas de la página
+  var offers = Array.prototype.slice.call(document.querySelectorAll('.box_offer'));
+
+  function seleccionarPrimeraVisible() {
+    var firstVisible = null;
+
+    for (var i = 0; i < offers.length; i++) {
+      var o = offers[i];
+      // visible si no está display:none
+      if (o.style.display !== 'none') {
+        firstVisible = o;
+        break;
+      }
+    }
+
+    if (firstVisible) {
+      firstVisible.click(); // dispara el script que llena el panel derecho
+    } else {
+      // Si no hay resultados, limpiar el panel derecho
+      var detailBox = document.querySelector('[data-offers-grid-box-detail]');
+      var detailContainer = detailBox
+        ? detailBox.querySelector('[data-offers-grid-detail-container]')
+        : null;
+
+      if (detailContainer) {
+        detailContainer.innerHTML =
+          '<div style="padding:20px; font-size:16px;">' +
+          'No se encontraron ofertas para esta búsqueda.' +
+          '</div>';
+      }
+    }
+  }
 
   function filtrar() {
-    const term = (input?.value || '').trim().toLowerCase();
-    let count = 0;
+    var term = '';
+    if (input && input.value) {
+      term = input.value.trim().toLowerCase();
+    }
 
-    offers.forEach(oferta => {
-      const contenido = oferta.innerText.toLowerCase();
-      if (!term || contenido.includes(term)) {
+    var count = 0;
+
+    for (var i = 0; i < offers.length; i++) {
+      var oferta = offers[i];
+      var contenido = oferta.innerText.toLowerCase();
+
+      if (!term || contenido.indexOf(term) !== -1) {
         oferta.style.display = '';
         count++;
       } else {
         oferta.style.display = 'none';
       }
-    });
-
-    console.log("Filtradas:", count);
-
-    // 👉 Auto-seleccionar la primera oferta visible
-    const firstVisible = offers.find(o => o.style.display !== 'none');
-
-    if (firstVisible) {
-      firstVisible.click();   // dispara nuestro script de detalle derecho
-    } else {
-      // Si no hay resultados, limpiamos el panel derecho y mostramos mensaje
-      const detailBox = document.querySelector('[data-offers-grid-box-detail]');
-      const detailContainer = detailBox
-        ? detailBox.querySelector('[data-offers-grid-detail-container]')
-        : null;
-
-      if (detailContainer) {
-        detailContainer.innerHTML = `
-          <div style="padding:20px; font-size:16px;">
-            No se encontraron ofertas para "<strong>${term}</strong>".
-          </div>
-        `;
-      }
     }
+
+    console.log('Filtradas:', count);
+    seleccionarPrimeraVisible();
   }
 
-  // 4) Conectar el click
+  // Click en "Buscar empleos"
   if (boton) {
-    boton.addEventListener('click', (e) => {
+    boton.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
       filtrar();
     });
   }
 
-  // 5) Conectar Enter
+  // Enter en el input
   if (input) {
-    input.addEventListener('keyup', (e) => {
+    input.addEventListener('keyup', function (e) {
       if (e.key === 'Enter') {
         e.preventDefault();
         filtrar();
@@ -5150,16 +5172,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 6) Autofiltrado si viene con ?q=
-  const params = new URLSearchParams(window.location.search);
-  const q = params.get('q');
+  // Si viene ?q= en la URL, autocompletar y filtrar
+  var params = new URLSearchParams(window.location.search);
+  var q = params.get('q');
   if (q && input) {
     input.value = q;
-    filtrar();   // acá ya va a dejar solo las que matchean y abrir la primera
+    filtrar(); // acá ya filtra y hace click en la primera visible
   }
 });
 </script>
-
+</body>
+</html>
 
 
 </body>
