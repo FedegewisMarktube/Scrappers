@@ -2415,7 +2415,7 @@ Más de 30 días</p></div></article>
                 Anterior
 
             </span>
-<span class="b_primary w48 buildLink cp" data-path="https://ar.computrabajo.com/empleos-en-buenos-aires?p=2" title="Siguiente">
+<span class="b_primary w48 buildLink cp" data-path="buenos_aires_p2.html" title="Siguiente">
 
                 Siguiente
 
@@ -5081,78 +5081,85 @@ Más de 30 días</p></div></article>
 }] }</script>
 
   // Script buscador 
-    <!-- …todos los scripts de Computrabajo que ya venían… -->
+   <script data-custom-ofertas="1">document.addEventListener('DOMContentLoaded', function () {
 
-    <!-- 👇 SCRIPT DEL BUSCADOR LOCAL -->
-    <script>
-    (function () {
-      // Input "Cargo o categoría"
-      var input = document.querySelector('input[placeholder="Cargo o categoría"]');
+    const offers = document.querySelectorAll('.box_offer');
+    const detailBox = document.querySelector('[data-offers-grid-box-detail]');
+    if (!detailBox) return;
 
-      // Botón "Buscar empleos" (puede ser button o div)
-      var boton = null;
-      var todos = document.querySelectorAll('*');
-      for (var i = 0; i < todos.length; i++) {
-        if (todos[i].textContent && todos[i].textContent.trim() === 'Buscar empleos') {
-          boton = todos[i];
-          break;
-        }
-      }
+    const detailContainer = detailBox.querySelector('[data-offers-grid-detail-container]');
+    if (!detailContainer) return;
 
-      // Todas las ofertas de la página
-      var offers = Array.prototype.slice.call(document.querySelectorAll('.box_offer'));
+    offers.forEach(offer => {
+        offer.addEventListener('click', () => {
 
-      function filtrar() {
-        var term = '';
-        if (input && input.value) {
-          term = input.value.trim().toLowerCase();
-        }
+            // marcar oferta seleccionada en la lista
+            document.querySelectorAll('.box_offer.sel').forEach(o => o.classList.remove('sel'));
+            offer.classList.add('sel');
 
-        var count = 0;
+            const title   = (offer.querySelector('h2') || {}).innerText || '';
+            const company = (offer.querySelector('p:nth-of-type(1)') || {}).innerText || '';
+            const place   = (offer.querySelector('p:nth-of-type(2)') || {}).innerText || '';
+            const descDiv = offer.querySelector('.descripcion_scrapeada');
 
-        for (var i = 0; i < offers.length; i++) {
-          var oferta = offers[i];
-          var contenido = oferta.innerText.toLowerCase();
+            if (!descDiv) return;
 
-          if (!term || contenido.indexOf(term) !== -1) {
-            oferta.style.display = '';
-            count++;
-          } else {
-            oferta.style.display = 'none';
-          }
-        }
+            const lines = Array.from(descDiv.querySelectorAll('p'))
+                .map(p => p.innerText.trim())
+                .filter(p => p.length > 0);
 
-        console.log('Filtradas:', count);
-        // 👉 NO auto-clickeamos nada: vos elegís y clickeás la oferta que quieras.
-      }
+            let html = "";
 
-      // Click en "Buscar empleos"
-      if (boton) {
-        boton.addEventListener('click', function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          filtrar();
+            lines.forEach(line => {
+                // bullets con - o *
+                if (/^\s*[-*]\s+/.test(line)) {
+                    const txt = line.replace(/^\s*[-*]\s+/, "");
+                    html += `<p style="margin:0 0 8px 0;">• ${txt}</p>`;
+                } else {
+                    // párrafo normal
+                    html += `<p style="margin:0 0 10px 0;">${line}</p>`;
+                }
+            });
+
+            detailContainer.classList.remove('hide');
+
+            detailContainer.innerHTML = `
+                <div class="box_border" style="padding:20px;">
+
+                    <h1 class="fs22 fwB" style="margin-bottom:5px;">
+                        ${title}
+                    </h1>
+
+                    <p class="fwB" style="margin:0;">${company}</p>
+                    <p style="margin:0 0 15px 0;">${place}</p>
+
+                    <div style="margin:15px 0;">
+                        <button style="
+                            background:#0D3878;
+                            color:#fff;
+                            padding:10px 20px;
+                            border-radius:25px;
+                            border:none;
+                            font-weight:bold;
+                            cursor:pointer;">
+                            Postularme
+                        </button>
+                    </div>
+
+                    <div style="font-size:15px; line-height:1.5;">
+                        ${html}
+                    </div>
+
+                </div>
+            `;
         });
-      }
+    });
 
-      // Enter en el input
-      if (input) {
-        input.addEventListener('keyup', function (e) {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            filtrar();
-          }
-        });
-      }
+    // dispara la primera oferta al cargar
+    if (offers.length > 0) {
+        offers[0].click();
+    }
+});</script>
 
-      // Si viene ?q= en la URL, autocompletar y filtrar
-      var params = new URLSearchParams(window.location.search);
-      var q = params.get('q');
-      if (q && input) {
-        input.value = q;
-        filtrar();
-      }
-    })();
-    </script>
 </body>
 </html>
