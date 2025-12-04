@@ -5,7 +5,7 @@ from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 
 BASE_URL = "https://ar.computrabajo.com"
-BA_LIST_URL = f"{BASE_URL}/empleos-en-buenos-aires"
+BA_LIST_URL = f"{BASE_URL}/empleos-en-cordoba"
 
 HEADERS = {
     "User-Agent": (
@@ -16,8 +16,12 @@ HEADERS = {
     "Accept-Language": "es-AR,es;q=0.9,en;q=0.8",
 }
 
-HTML_DIR = "html_pages"
-CSS_DIR = "css_files"
+# 👇 NUEVO: base del repo
+BASE_DIR = os.path.dirname(__file__)
+HTML_DIR = os.path.join(BASE_DIR, "..", "data", "cordoba")
+
+CSS_DIR = os.path.join(BASE_DIR, "..", "data", "CSS")
+
 
 
 def ensure_dirs():
@@ -97,8 +101,8 @@ def scrape_home(downloaded_css: set) -> None:
     download_css_from_html(html, url, downloaded_css)
 
 
-def scrape_buenos_aires_pages(downloaded_css: set, delay: float = 2.0, max_pages: int | None = None) -> None:
-    print("\n=== PÁGINAS BUENOS AIRES ===")
+def scrape_cordoba_pages(downloaded_css: set, delay: float = 2.0, max_pages: int | None = None) -> None:
+    print("\n=== PÁGINAS CORDOBA ===")
     page = 1
 
     while True:
@@ -114,7 +118,7 @@ def scrape_buenos_aires_pages(downloaded_css: set, delay: float = 2.0, max_pages
             break
 
         # Guardar HTML de esta página
-        save_html(html, f"buenos_aires_p{page}.html")
+        save_html(html, f"cordoba_p{page}.html")
         download_css_from_html(html, url, downloaded_css)
 
         # Heurística simple para cortar: si ya no hay resultados nuevos
@@ -137,6 +141,6 @@ if __name__ == "__main__":
 
     # 2) Todas las páginas de empleos en Buenos Aires
     #    Mientras probás podés usar max_pages=3, después lo ponés en None
-    scrape_buenos_aires_pages(downloaded_css, delay=2.0, max_pages=None)
+    scrape_cordoba_pages(downloaded_css, delay=2.0, max_pages=30)
 
-    print("\nListo. HTML en carpeta 'html_pages' y CSS en 'css_files'.")
+print("\nListo. HTML en 'empleobusca.com/data/cordoba' y CSS en 'empleobusca.com/data/css_cordoba'.")
