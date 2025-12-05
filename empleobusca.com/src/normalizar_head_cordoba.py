@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 BASE_DIR = os.path.dirname(__file__)
 
 # 👇 ACÁ ELEGÍS LA PROVINCIA
-PROV_SLUG = "cordoba"   # ej: "cordoba", luego "mendoza", etc.
+PROV_SLUG = "mendoza"   # ej: "cordoba", luego "mendoza", etc.
 
 DATA_DIR = os.path.join(BASE_DIR, "..", "data", PROV_SLUG)
 
