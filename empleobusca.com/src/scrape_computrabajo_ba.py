@@ -5,7 +5,7 @@ from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 
 BASE_URL = "https://ar.computrabajo.com"
-BA_LIST_URL = f"{BASE_URL}/empleos-en-mendoza"
+BA_LIST_URL = f"{BASE_URL}/empleos-en-buenos_aires"
 
 HEADERS = {
     "User-Agent": (
@@ -16,12 +16,12 @@ HEADERS = {
     "Accept-Language": "es-AR,es;q=0.9,en;q=0.8",
 }
 
-# 👇 NUEVO: base del repo
+# base del repo
 BASE_DIR = os.path.dirname(__file__)
-HTML_DIR = os.path.join(BASE_DIR, "..", "data", "mendoza")
+HTML_DIR = os.path.join(BASE_DIR, "..", "data", "buenos_aires")
 
+# 👇 lo dejo igual que vos: una carpeta CSS común
 CSS_DIR = os.path.join(BASE_DIR, "..", "data", "CSS")
-
 
 
 def ensure_dirs():
@@ -51,7 +51,6 @@ def save_html(content: str, filename: str) -> None:
 
 
 def sanitize_filename(name: str) -> str:
-    # para nombres de archivo simples
     return "".join(c if c.isalnum() or c in "-_." else "_" for c in name)
 
 
@@ -101,8 +100,8 @@ def scrape_home(downloaded_css: set) -> None:
     download_css_from_html(html, url, downloaded_css)
 
 
-def scrape_mendoza_pages(downloaded_css: set, delay: float = 2.0, max_pages: int | None = None) -> None:
-    print("\n=== PÁGINAS MENDOZA ===")
+def scrape_buenos_aires_pages(downloaded_css: set, delay: float = 2.0, max_pages: int | None = None) -> None:
+    print("\n=== PÁGINAS buenos_aires ===")
     page = 1
 
     while True:
@@ -117,11 +116,9 @@ def scrape_mendoza_pages(downloaded_css: set, delay: float = 2.0, max_pages: int
             print("No se pudo descargar la página, corto.")
             break
 
-        # Guardar HTML de esta página
-        save_html(html, f"mendoza_p{page}.html")
+        save_html(html, f"buenos_aires_p{page}.html")
         download_css_from_html(html, url, downloaded_css)
 
-        # Heurística simple para cortar: si ya no hay resultados nuevos
         soup = BeautifulSoup(html, "html.parser")
         job_cards = soup.find_all("article")
         if not job_cards:
@@ -136,11 +133,8 @@ if __name__ == "__main__":
     ensure_dirs()
     downloaded_css = set()
 
-    # 1) Home
     scrape_home(downloaded_css)
+    scrape_buenos_aires_pages(downloaded_css, delay=2.0, max_pages=30)
 
-    # 2) Todas las páginas de empleos en Buenos Aires
-    #    Mientras probás podés usar max_pages=3, después lo ponés en None
-    scrape_mendoza_pages(downloaded_css, delay=2.0, max_pages=30)
-
-print("\nListo. HTML en 'empleobusca.com/data/mendoza' y CSS en 'empleobusca.com/data/css_mendoza'.")
+    # ✅ CAMBIO: este print queda adentro del main
+    print(f"\nListo. HTML en '{HTML_DIR}' y CSS en '{CSS_DIR}'.")

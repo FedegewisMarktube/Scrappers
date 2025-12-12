@@ -12,7 +12,7 @@ BASE_URL = "https://ar.computrabajo.com"
 
 BASE_DIR = os.path.dirname(__file__)
 DATA_DIR = os.path.join(BASE_DIR, "..", "data")
-mendoza_DIR = os.path.join(DATA_DIR, "mendoza")
+buenos_aires_DIR = os.path.join(DATA_DIR, "buenos_aires")
 OFERTAS_DIR = os.path.join(DATA_DIR, "ofertas_detalle")
 
 os.makedirs(OFERTAS_DIR, exist_ok=True)
@@ -47,13 +47,13 @@ def obtener_links_desde_listados() -> list[str]:
 
     # 👉 armamos la lista de archivos y la cortamos en MAX_PAGES
     archivos_ba = [
-        a for a in os.listdir(mendoza_DIR)
-        if a.startswith("mendoza_p") and a.endswith(".html")
+        a for a in os.listdir(buenos_aires_DIR)
+        if a.startswith("buenos_aires_p") and a.endswith(".html")
     ]
     archivos_ba = sorted(archivos_ba)[:MAX_PAGES]
 
     for archivo in archivos_ba:
-        ruta = os.path.join(mendoza_DIR, archivo)
+        ruta = os.path.join(buenos_aires_DIR, archivo)
         print(f"📄 Leyendo {archivo}...")
         with open(ruta, "r", encoding="utf-8") as f:
             html = f.read()
@@ -334,13 +334,13 @@ def inyectar_descripciones_y_script(descripciones: dict[str, str]) -> None:
     """
     # 🔹 NUEVO: armar lista de archivos y cortarla en 30
     archivos_ba = [
-        a for a in os.listdir(mendoza_DIR)
-        if a.startswith("mendoza_p") and a.endswith(".html")
+        a for a in os.listdir(buenos_aires_DIR)
+        if a.startswith("buenos_aires_p") and a.endswith(".html")
     ]
     archivos_ba = sorted(archivos_ba)[:30]   # 👈 acá está el límite a 30 páginas
 
     for archivo in archivos_ba:
-        ruta = os.path.join(mendoza_DIR, archivo)
+        ruta = os.path.join(buenos_aires_DIR, archivo)
         print(f"\n🛠 Analizando {archivo}...")
         with open(ruta, "r", encoding="utf-8") as f:
             html = f.read()
@@ -449,10 +449,10 @@ def main():
     print("\n2️⃣ Descargando y extrayendo descripciones (todas las ofertas únicas)...")
     descripciones = construir_diccionario_descripciones(links)
 
-    print("\n3️⃣ Inyectando descripciones, CSS y JS en cada mendoza_pX.html...")
+    print("\n3️⃣ Inyectando descripciones, CSS y JS en cada buenos_aires_pX.html...")
     inyectar_descripciones_y_script(descripciones)
 
-    print("\n🎉 Listo. Revisá tus archivos mendoza_pX.html en la carpeta data/.")
+    print("\n🎉 Listo. Revisá tus archivos buenos_aires_pX.html en la carpeta data/.")
 
 
 if __name__ == "__main__":
