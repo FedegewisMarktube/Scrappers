@@ -437,7 +437,7 @@
         </div>
     </div>
 
-        <button id="search-button" class="b_primary rounded mlAuto">
+        <button id="search-button" type="button" class="b_primary rounded mlAuto">
             <span class="icon i_search"></span>
             <span>Buscar empleos</span>
         </button>
@@ -703,24 +703,35 @@
   if (!input || !boton) return;
 
   function buscarGlobal() {
-    var term = input.value ? input.value.trim() : '';
+    var term = (input.value || '').trim();
     if (!term) return;
-    window.location.href = './busqueda.html?q=' + encodeURIComponent(term);
+
+    /*  carpeta actual (ej: /Scrappers/empleobusca.com/data/) */
+    var baseDir = window.location.pathname.replace(/\/[^\/]*$/, '/');
+
+    /* arma: /Scrappers/empleobusca.com/data/busqueda.html?q=...*/
+    var target = baseDir + 'busqueda.html?q=' + encodeURIComponent(term);
+
+    window.location.href = target;
   }
 
+  /*// Capturo el click lo más fuerte posible (por si otro JS lo pisa)*/
   boton.addEventListener('click', function (e) {
     e.preventDefault();
+    e.stopPropagation();
     buscarGlobal();
-  });
+  }, true);
 
-  input.addEventListener('keyup', function (e) {
+  input.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') {
       e.preventDefault();
+      e.stopPropagation();
       buscarGlobal();
     }
-  });
+  }, true);
 })();
 </script>
+
 
 
 </body>
