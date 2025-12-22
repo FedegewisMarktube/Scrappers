@@ -75,7 +75,7 @@ function removeDuplicateIds(node) {
 
 async function buscarCiudad(ciudad) {
   for (let pagina = 1; pagina <= MAX_PAGINAS; pagina++) {
-    const url = `./${ciudad.slug}/${ciudad.slug}_p${pagina}.html`;
+    const url = `/data/${ciudad.slug}/${ciudad.slug}_p${pagina}.html`;
 
     try {
       const res = await fetch(url, { cache: 'no-store' });
