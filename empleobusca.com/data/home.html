@@ -696,35 +696,32 @@
 }] }</script>
 
 <script>
-    (function() {
-      var input = document.getElementById('prof-cat-search-input');
-      var boton = document.getElementById('search-button');
+(function () {
+  var input = document.getElementById('prof-cat-search-input');
+  var boton = document.getElementById('search-button');
 
-      if (!input || !boton) return;
+  if (!input || !boton) return;
 
-      function irALocal() {
-        var term = input.value ? input.value.trim() : '';
-        var url = './buenos_aires_p1.html';
-        if (term) {
-          url += '?q=' + encodeURIComponent(term);
-        }
-        window.location.href = url;
-      }
+  function buscarGlobal() {
+    var term = input.value ? input.value.trim() : '';
+    if (!term) return;
+    window.location.href = './busqueda.html?q=' + encodeURIComponent(term);
+  }
 
-      boton.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        irALocal();
-      });
+  boton.addEventListener('click', function (e) {
+    e.preventDefault();
+    buscarGlobal();
+  });
 
-      input.addEventListener('keyup', function(e) {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          irALocal();
-        }
-      });
-    })();
-    </script>
+  input.addEventListener('keyup', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      buscarGlobal();
+    }
+  });
+})();
+</script>
+
 
 </body>
 
