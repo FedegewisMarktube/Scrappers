@@ -54,6 +54,24 @@ async function buscarCiudad(ciudad) {
 
         // opcional: que no quede "seleccionada"
         clon.classList.remove('sel');
+        // ✅ Desactivar navegación a detalles (porque no existen en tu sitio)
+        clon.querySelectorAll('a[href]').forEach(a => {
+          a.setAttribute('href', '#');
+          a.setAttribute('role', 'button');
+          a.style.cursor = 'default';
+
+          a.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            alert('Detalle no disponible en este sitio.');
+          });
+        });
+
+        // opcional: que al click en toda la card tampoco navegue
+        clon.addEventListener('click', (e) => {
+          // evita que algún handler haga navegación
+          e.preventDefault?.();
+        }, true);
 
         contenedor.appendChild(clon);
         totalEncontrados++;
