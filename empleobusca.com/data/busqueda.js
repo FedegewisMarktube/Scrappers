@@ -25,6 +25,54 @@ const MAX_PAGINAS = 50; // límite de seguridad
 
 let totalEncontrados = 0;
 
+/**
+ * Convierte href relativos del HTML clonado (ej: "/ofertas-de-trabajo/...")
+ * para que apunten al archivo local dentro de cada carpeta de ciudad.
+ *
+ * Si tus ofertas locales están en:
+ *   ./buenos_aires/ofertas-de-trabajo/xxxxx.html
+ * ajustá el mapping acá abajo.
+ */
+function fixLinksDentroDeOferta(clone, ciudadSlug) {
+  // 1) Links a ofertas en Computrabajo suelen venir como:
+  // href="/ofertas-de-trabajo/....#lc=..."
+  // Los pasamos a local:
+  // ./{ciudadSlug}/ofertas-de-trabajo/....
+  clone.querySelectorAll('a[href]').forEach(a => {
+    const href = a.getAttribute('href') || '';
+    if (!href) return;
+
+    // si es absoluto (http, https) lo dejamos
+    if (/^https?:\/\//i.test(href)) return;
+
+    // si ya es relativo local "./..." lo dejamos
+    if (href.startsWith('./')) return;
+
+    // si es anchor "#..." lo dejamos
+    if (href.startsWith('#')) return;
+
+    // Computrabajo suele usar paths que empiezan con "/"
+    if (href.startsWith('/')) {
+      a.setAttribute('href', `./${ciudadSlug}${href}`);
+      return;
+    }
+
+    // caso raro: "ofertas-de-trabajo/..." sin barra inicial
+    if (href.startsWith('ofertas-de-trabajo/')) {
+      a.setAttribute('href', `./${ciudadSlug}/${href}`);
+      return;
+    }
+  });
+}
+
+/**
+ * Evita IDs duplicados al clonar nodos desde múltiples páginas.
+ * (No siempre rompe, pero es buena práctica.)
+ */
+function removeDuplicateIds(node) {
+  node.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+}
+
 async function buscarCiudad(ciudad) {
   for (let pagina = 1; pagina <= MAX_PAGINAS; pagina++) {
     const url = `./${ciudad.slug}/${ciudad.slug}_p${pagina}.html`;
@@ -48,7 +96,18 @@ async function buscarCiudad(ciudad) {
         const texto = (oferta.innerText || '').toLowerCase();
 
         if (texto.includes(query)) {
-          contenedor.appendChild(oferta.cloneNode(true));
+          const clone = oferta.cloneNode(true);
+
+          // limpiar IDs duplicados
+          removeDuplicateIds(clone);
+
+          // arreglar href dentro del clon para que funcionen localmente
+          fixLinksDentroDeOferta(clone, ciudad.slug);
+
+          // opcional: marcar de qué ciudad vino
+          clone.setAttribute('data-ciudad', ciudad.slug);
+
+          contenedor.appendChild(clone);
           totalEncontrados++;
         }
       });
@@ -66,7 +125,7 @@ async function buscarGlobal() {
   }
 
   if (totalEncontrados === 0) {
-    contenedor.innerHTML = '<p>No se encontraron resultados.</p>';
+    contenedor.innerHTML = '<p class="fc_aux">No se encontraron resultados.</p>';
   }
 
   subtitulo.innerText = `Resultados encontrados: ${totalEncontrados}`;

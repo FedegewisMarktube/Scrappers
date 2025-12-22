@@ -1,23 +1,45 @@
 <!DOCTYPE html>
-<html lang="es-AR">
+<html lang="es-AR" xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="x-ua-compatible" content="IE=edge" />
+
   <title>Búsqueda global</title>
+
+  <!-- IMPORTANTE: estos 2 valores existen en tus páginas tipo buenos_aires_p2.html -->
+  <link crossorigin href="https://cp.ct-stc.com" rel="preconnect" />
+  <link as="font" crossorigin="anonymous" href="//cp.ct-stc.com/web8/20251204.01_01.27/c/css/fonts/CTFont_xs.woff2" rel="preload" type="font/woff2" />
+  <link as="font" crossorigin="anonymous" href="//cp.ct-stc.com/web8/20251204.01_01.27/c/css/fonts/ct_font/ct_regular_font.woff2" rel="preload" type="font/woff2" />
+  <link as="font" crossorigin="anonymous" href="//cp.ct-stc.com/web8/20251204.01_01.27/c/css/fonts/ct_font/ct_bold_font.woff2" rel="preload" type="font/woff2" />
+
+  <!-- CSS principal (mismo look & feel) -->
+  <link rel="stylesheet" href="//cp.ct-stc.com/web8/20251204.01_01.27/c/bundles/css/site.bundle.min.css" />
+
+  <!-- Si querés, podés ajustar solo márgenes sin romper el look -->
   <style>
-    body{font-family: Arial, sans-serif; padding: 20px;}
-    .top{max-width: 1100px; margin: 0 auto;}
-    #resultados{max-width: 1100px; margin: 20px auto;}
-    .muted{opacity:.7}
+    .wrap_busqueda {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 12px;
+    }
+    .muted { opacity: .7; }
   </style>
 </head>
+
 <body>
-  <div class="top">
-    <h1 id="titulo">Resultados</h1>
+
+  <div class="wrap_busqueda">
+    <h1 class="title_page" id="titulo">Resultados</h1>
     <p class="muted" id="subtitulo"></p>
+
+    <!-- ESTE ES EL CONTENEDOR QUE TIENE QUE LLENAR busqueda.js -->
+    <div class="box_grid parrilla_oferta" id="resultados"></div>
   </div>
 
-  <div id="resultados"></div>
+  <!-- (Opcional) scripts del layout, si te faltan íconos o comportamientos -->
+  <script defer src="//cp.ct-stc.com/web8/20251204.01_01.27/c/bundles/js/jquery.bundle.min.js"></script>
+  <script defer src="//cp.ct-stc.com/web8/20251204.01_01.27/c/bundles/js/site.layout.bundle.min.js"></script>
 
   <script src="./busqueda.js"></script>
 </body>
