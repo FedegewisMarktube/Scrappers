@@ -1,48 +1,84 @@
 <!DOCTYPE html>
-<html lang="es-AR" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="es-AR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta http-equiv="x-ua-compatible" content="IE=edge" />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Búsqueda global</title>
 
-  <!-- IMPORTANTE: estos 2 valores existen en tus páginas tipo buenos_aires_p2.html -->
-  <link crossorigin href="https://cp.ct-stc.com" rel="preconnect" />
-  <link as="font" crossorigin="anonymous" href="//cp.ct-stc.com/web8/20251204.01_01.27/c/css/fonts/CTFont_xs.woff2" rel="preload" type="font/woff2" />
-  <link as="font" crossorigin="anonymous" href="//cp.ct-stc.com/web8/20251204.01_01.27/c/css/fonts/ct_font/ct_regular_font.woff2" rel="preload" type="font/woff2" />
-  <link as="font" crossorigin="anonymous" href="//cp.ct-stc.com/web8/20251204.01_01.27/c/css/fonts/ct_font/ct_bold_font.woff2" rel="preload" type="font/woff2" />
+  <!-- (Opcional) si querés mantener fuentes externas -->
+  <link rel="preconnect" href="https://cp.ct-stc.com" crossorigin />
 
-  <!-- CSS principal (mismo look & feel) -->
-  <link rel="stylesheet" href="//cp.ct-stc.com/web8/20251204.01_01.27/c/bundles/css/site.bundle.min.css" />
-
-  <!-- Si querés, podés ajustar solo márgenes sin romper el look -->
   <style>
-    html { background-color: #F6FBFF; font-size: 62.5%; }
-    body { background: transparent; }
+    /* Base */
+    * { box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: Arial, sans-serif;
+      background:#f0f2f4;
+      color:#313944;
+    }
+    a{ color:#005DA9; text-decoration:none; }
+    a:hover{ text-decoration:underline; }
 
     .wrap_busqueda {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 20px 12px;
+      padding: 24px 12px;
     }
     .muted { opacity: .7; }
+
+    /* ✅ Look & feel “cards” como buenos_aires_pX */
+    .box_offer{
+      padding:20px 25px;
+      margin:0 0 15px;
+      cursor:pointer;
+      position:relative;
+      border:1px solid #e1e5ea;
+      border-radius:10px;
+      background:#fff;
+      overflow:hidden;
+    }
+    .box_offer:hover{
+      box-shadow:3px 3px 6px 0 rgba(0,0,0,0.10);
+    }
+    .box_offer:not(.hide_offer):not(.sel).outstanding{
+      border-color:#9F8505;
+    }
+    .box_offer.sel{
+      border-color:#005DA9;
+    }
+
+    /* Para que el título no se desmadre */
+    .box_offer h1, .box_offer h2 { margin:0 0 6px; }
+    .box_offer h1 a, .box_offer h2 a{
+      display:block;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    /* Contenedor de resultados */
+    #resultados{
+      margin-top: 16px;
+    }
+
+    /* Mensaje “sin resultados” */
+    .nores{
+      background:#fff;
+      border:1px solid #e1e5ea;
+      border-radius:10px;
+      padding:16px 20px;
+    }
   </style>
 </head>
 
 <body>
-
   <div class="wrap_busqueda">
-    <h1 class="title_page" id="titulo">Resultados</h1>
+    <h1 id="titulo">Resultados</h1>
     <p class="muted" id="subtitulo"></p>
 
-    <!-- ESTE ES EL CONTENEDOR QUE TIENE QUE LLENAR busqueda.js -->
-    <div class="box_grid parrilla_oferta" id="resultados"></div>
+    <div id="resultados"></div>
   </div>
-
-  <!-- (Opcional) scripts del layout, si te faltan íconos o comportamientos -->
-  <script defer src="//cp.ct-stc.com/web8/20251204.01_01.27/c/bundles/js/jquery.bundle.min.js"></script>
-
 
   <script src="./busqueda.js"></script>
 </body>

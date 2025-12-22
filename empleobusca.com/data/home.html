@@ -699,29 +699,30 @@
 (function () {
   var input = document.getElementById('prof-cat-search-input');
   var boton = document.getElementById('search-button');
-
   if (!input || !boton) return;
+
+  var form = input.closest('form');
 
   function buscarGlobal() {
     var term = (input.value || '').trim();
     if (!term) return;
 
-    /*  carpeta actual (ej: /Scrappers/empleobusca.com/data/) */
+    // carpeta actual: .../data/
     var baseDir = window.location.pathname.replace(/\/[^\/]*$/, '/');
 
-    /* arma: /Scrappers/empleobusca.com/data/busqueda.html?q=...*/
+    // .../data/busqueda.html?q=...
     var target = baseDir + 'busqueda.html?q=' + encodeURIComponent(term);
-
     window.location.href = target;
   }
 
-  /*// Capturo el click lo más fuerte posible (por si otro JS lo pisa)*/
+  // click botón
   boton.addEventListener('click', function (e) {
     e.preventDefault();
     e.stopPropagation();
     buscarGlobal();
   }, true);
 
+  // Enter en input
   input.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -729,6 +730,15 @@
       buscarGlobal();
     }
   }, true);
+
+  // ✅ submit del form (CLAVE)
+  if (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      buscarGlobal();
+    }, true);
+  }
 })();
 </script>
 
