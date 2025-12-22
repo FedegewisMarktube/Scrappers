@@ -5,12 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Búsqueda global</title>
 
-  <!-- (Opcional) si querés mantener fuentes externas -->
-  <link rel="preconnect" href="https://cp.ct-stc.com" crossorigin />
-
   <style>
-    /* Base */
-    * { box-sizing: border-box; }
+    *{ box-sizing:border-box; }
     body{
       margin:0;
       font-family: Arial, sans-serif;
@@ -20,35 +16,96 @@
     a{ color:#005DA9; text-decoration:none; }
     a:hover{ text-decoration:underline; }
 
-    .wrap_busqueda {
+    .container{
       max-width: 1100px;
       margin: 0 auto;
-      padding: 24px 12px;
+      padding: 16px 12px 28px;
     }
-    .muted { opacity: .7; }
 
-    /* ✅ Look & feel “cards” como buenos_aires_pX */
+    /* Header */
+    .topbar{
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(240,242,244,.92);
+      backdrop-filter: blur(6px);
+      border-bottom: 1px solid #e1e5ea;
+    }
+    .topbar .container{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 12px 12px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .brand img{
+      height: 34px;
+      width: auto;
+      display:block;
+    }
+    .brand .name{
+      font-weight:700;
+      color:#313944;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 520px;
+    }
+
+    .btn{
+      border: 1px solid #cfd6de;
+      background:#fff;
+      color:#313944;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor:pointer;
+      font-weight:600;
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      text-decoration:none;
+    }
+    .btn:hover{ box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+    .btn.primary{
+      border-color:#005DA9;
+      background:#005DA9;
+      color:#fff;
+    }
+
+    /* Header content */
+    .hero{
+      margin-top: 16px;
+      background:#fff;
+      border:1px solid #e1e5ea;
+      border-radius: 14px;
+      padding: 18px 18px 16px;
+    }
+    h1{ margin:0 0 6px; font-size: 28px; }
+    .muted{ opacity:.75; margin:0; }
+
+    /* Results */
+    #resultados{ margin-top: 16px; }
+
+    /* Cards (estilo tipo Computrabajo) */
     .box_offer{
       padding:20px 25px;
       margin:0 0 15px;
-      cursor:pointer;
       position:relative;
       border:1px solid #e1e5ea;
-      border-radius:10px;
+      border-radius:12px;
       background:#fff;
       overflow:hidden;
     }
     .box_offer:hover{
       box-shadow:3px 3px 6px 0 rgba(0,0,0,0.10);
     }
-    .box_offer:not(.hide_offer):not(.sel).outstanding{
-      border-color:#9F8505;
-    }
-    .box_offer.sel{
-      border-color:#005DA9;
-    }
-
-    /* Para que el título no se desmadre */
     .box_offer h1, .box_offer h2 { margin:0 0 6px; }
     .box_offer h1 a, .box_offer h2 a{
       display:block;
@@ -57,25 +114,39 @@
       white-space:nowrap;
     }
 
-    /* Contenedor de resultados */
-    #resultados{
-      margin-top: 16px;
-    }
-
-    /* Mensaje “sin resultados” */
     .nores{
       background:#fff;
       border:1px solid #e1e5ea;
-      border-radius:10px;
-      padding:16px 20px;
+      border-radius:12px;
+      padding:16px 18px;
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap_busqueda">
-    <h1 id="titulo">Resultados</h1>
-    <p class="muted" id="subtitulo"></p>
+
+  <!-- Topbar con logo + volver -->
+  <div class="topbar">
+    <div class="container">
+      <a class="brand" href="./home.html" aria-label="Volver al inicio">
+        <!-- ⚠️ CAMBIÁ ESTE SRC por tu logo real -->
+        <img src="./logo.png" alt="Logo" />
+        <div class="name">EmpleoBusca</div>
+      </a>
+
+      <div style="display:flex; gap:10px; align-items:center;">
+        <a class="btn" href="./home.html">← Volver al inicio</a>
+        <!-- opcional: un botón extra si querés -->
+        <!-- <a class="btn primary" href="./home.html">Buscar otra vez</a> -->
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="hero">
+      <h1 id="titulo">Resultados</h1>
+      <p class="muted" id="subtitulo"></p>
+    </div>
 
     <div id="resultados"></div>
   </div>
