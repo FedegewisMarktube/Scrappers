@@ -5720,6 +5720,16 @@ Hace  5  días</p></div></article>
     offers.forEach(offer => {
         offer.addEventListener('click', () => {
 
+            // 🚫 SI YA ESTÁ SELECCIONADA, NO HAGAS NADA
+            if (offer.classList.contains('sel')) return;
+
+             // limpiar selección anterior
+            document.querySelectorAll('.box_offer.sel')
+            .forEach(o => o.classList.remove('sel'));
+
+            // marcar la nueva
+            offer.classList.add('sel');
+
             // marcar oferta seleccionada en la lista
             document.querySelectorAll('.box_offer.sel').forEach(o => o.classList.remove('sel'));
             offer.classList.add('sel');
