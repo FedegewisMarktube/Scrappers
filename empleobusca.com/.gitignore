@@ -3,7 +3,11 @@
 # =========================
 
 # Carpeta de caché de ofertas individuales (NO se sube a Git)
-**/data/ofertas_detalle/
+ar.computrabajo/data/ofertas_detalle/
+*/data/ofertas_detalle/
+# Cache de ofertas scrapeadas (no versionar)
+ar.computrabajo/data/ofertas_detalle/**
+
 
 # Archivos generados automáticamente
 *.csv

@@ -5935,16 +5935,7 @@ Hace  7  días</p></div></article>
 </script>
 <footer class="">
 <div class="footer_c">
-<div class="container">
-<p>
 
-                Copyright 2014 - 2025  DGNET LTD.
-
-            </p>
-<div class="mb10">
-<a class="fc_aux" href="https://ar.computrabajo.com/avisolegal/" rel="nofollow" title="Aviso legal">Aviso legal</a> / <a class="fc_aux" href="https://ar.computrabajo.com/privacidad/" rel="nofollow" title="privacidad">privacidad</a>
-</div>
-</div>
 </div>
 </footer>
 </div>
@@ -6843,6 +6834,17 @@ Hace  7  días</p></div></article>
     offers.forEach(offer => {
         offer.addEventListener('click', () => {
 
+            // 🚫 SI YA ESTÁ SELECCIONADA, NO HAGAS NADA
+            if (offer.classList.contains('sel')) return;
+
+             // limpiar selección anterior
+            document.querySelectorAll('.box_offer.sel')
+            .forEach(o => o.classList.remove('sel'));
+
+            // marcar la nueva
+            offer.classList.add('sel');
+
+
             // marcar oferta seleccionada en la lista
             document.querySelectorAll('.box_offer.sel').forEach(o => o.classList.remove('sel'));
             offer.classList.add('sel');
@@ -6909,5 +6911,154 @@ Hace  7  días</p></div></article>
     if (offers.length > 0) {
         offers[0].click();
     }
-});</script></body>
+});</script>                                                                                
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // =========================
+  // 1) UI: abrir/cerrar combos
+  // =========================
+  document.querySelectorAll(".field_select_links").forEach(box => {
+    const p = box.querySelector(":scope > p");
+    const close = box.querySelector(".btn_close");
+    if (p) p.addEventListener("click", (e) => {
+      e.stopPropagation();
+      // cerrar los otros
+      document.querySelectorAll(".field_select_links.open").forEach(x => { if (x!==box) x.classList.remove("open"); });
+      box.classList.toggle("open");
+    });
+    if (close) close.addEventListener("click", (e) => {
+      e.stopPropagation();
+      box.classList.remove("open");
+    });
+  });
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".field_select_links.open").forEach(x => x.classList.remove("open"));
+  });
+
+  // ==================================================
+  // 2) Navegación: que los spans .buildLink funcionen
+  //    (usa data-path="?by=...&pubdate=...&sal=...")
+  // ==================================================
+  document.querySelectorAll("span.buildLink").forEach(el => {
+    el.style.cursor = "pointer";
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const path = el.getAttribute("data-path");
+      if (!path) return;
+
+      // arma URL manteniendo ruta actual y reemplazando querystring
+      const url = new URL(window.location.href);
+      if (path.startsWith("?")) {
+        url.search = path; // reemplaza query entera
+      } else {
+        // si viniera algo tipo "/empleos-en-..." lo tratamos como navegación normal
+        url.href = path;
+      }
+      window.location.href = url.toString();
+    });
+  });
+
+  // =========================
+  // 3) Aplicar filtros/orden
+  // =========================
+  const offersContainer = document.getElementById("offersGridOfferContainer");
+  if (!offersContainer) return;
+
+  const offers = Array.from(offersContainer.querySelectorAll("article.box_offer"));
+
+  const params = new URLSearchParams(window.location.search);
+  const by = params.get("by");         // relevance | publicationtime | salary
+  const pubdate = params.get("pubdate"); // 99, 1, 3, 7, 15, 30
+  const sal = params.get("sal");       // 1..7
+
+  // ---- helpers
+  function parseSalaryNumber(offer) {
+    // Ej: "$ 400.000,00 (Mensual) + Comisiones":contentReference[oaicite:8]{index=8}
+    const salaryEl = offer.querySelector(".i_salary")?.parentElement;
+    const txt = salaryEl ? salaryEl.textContent : "";
+    // toma el primer número grande
+    const m = txt.replace(/\./g, "").replace(/,/g, ".").match(/(\d{2,})/);
+    return m ? Number(m[1]) : -1;
+  }
+
+  function parseAgeMinutes(offer) {
+    // Busca el texto tipo: "Hace  1  hora", "Hace  4  días", "Ayer", "Ahora"
+    const timeTxt = (offer.querySelector("p.fs13.fc_aux")?.textContent || "").replace(/\s+/g, " ").trim();
+
+    if (!timeTxt) return Number.POSITIVE_INFINITY;
+    if (timeTxt.toLowerCase() === "ahora") return 0;
+    if (timeTxt.toLowerCase() === "ayer") return 24 * 60;
+
+    // "Hace 1 hora" / "Hace 16 horas" / "Hace 9 horas" / "Hace 3 días":contentReference[oaicite:9]{index=9}:contentReference[oaicite:10]{index=10}
+    let m = timeTxt.match(/Hace\s+(\d+)\s+hora/i);
+    if (m) return Number(m[1]) * 60;
+
+    m = timeTxt.match(/Hace\s+(\d+)\s+horas/i);
+    if (m) return Number(m[1]) * 60;
+
+    m = timeTxt.match(/Hace\s+(\d+)\s+d[ií]a/i);
+    if (m) return Number(m[1]) * 24 * 60;
+
+    m = timeTxt.match(/Hace\s+(\d+)\s+d[ií]as/i);
+    if (m) return Number(m[1]) * 24 * 60;
+
+    // si dice "Más de 30 días" u otros, lo mando bien viejo
+    if (timeTxt.toLowerCase().includes("más de 30")) return 31 * 24 * 60;
+
+    return Number.POSITIVE_INFINITY;
+  }
+
+  function applyPubdateFilter(daysMax) {
+    const maxMinutes = daysMax * 24 * 60;
+    offers.forEach(of => {
+      const age = parseAgeMinutes(of);
+      of.style.display = (age <= maxMinutes) ? "" : "none";
+    });
+  }
+
+  function applySalaryFilter(salCode) {
+    // Mapeo simple de tus opciones:
+    // 1: Hasta 250k; 2: >250k; 3: >500k; 4: >700k; 5: >900k; 6: >1.2M; 7: >2M:contentReference[oaicite:11]{index=11}
+    const thresholds = { "1": 250000, "2": 250000, "3": 500000, "4": 700000, "5": 900000, "6": 1200000, "7": 2000000 };
+    const t = thresholds[salCode];
+    if (!t) return;
+
+    offers.forEach(of => {
+      const s = parseSalaryNumber(of);
+      let ok = true;
+
+      if (salCode === "1") ok = (s !== -1 && s <= t);
+      else ok = (s !== -1 && s >= t);
+
+      of.style.display = ok ? "" : "none";
+    });
+  }
+
+  function sortOffers(mode) {
+    const visibleOffers = offers.filter(of => of.style.display !== "none");
+
+    if (mode === "publicationtime") {
+      visibleOffers.sort((a,b) => parseAgeMinutes(a) - parseAgeMinutes(b)); // más nuevas primero
+    } else if (mode === "salary") {
+      visibleOffers.sort((a,b) => parseSalaryNumber(b) - parseSalaryNumber(a)); // mayor salario primero
+    } else {
+      // relevance: dejamos el orden original (no tocamos)
+      return;
+    }
+
+    // reinsertar en contenedor en el nuevo orden
+    visibleOffers.forEach(of => offersContainer.appendChild(of));
+  }
+
+  // ---- ejecutar según query params
+  if (pubdate) {
+    const days = Number(pubdate);
+    if (!Number.isNaN(days) && days > 0) applyPubdateFilter(days === 99 ? 1 : days);
+  }
+  if (sal) applySalaryFilter(sal);
+  if (by) sortOffers(by);
+});
+</script>                                                                                       
+</body>
 </html>
