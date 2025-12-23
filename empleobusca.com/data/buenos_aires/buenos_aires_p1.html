@@ -38,7 +38,49 @@
 
 [data-offers-grid-loading-container] {
     display: none !important;
-}</style></head>
+}
+/* ===============================
+   LIMPIEZA BOTONES COMPUTRABAJO
+   =============================== */
+
+/* Evaluaciones / salarios / opiniones */
+[data-show-reviews],
+[data-show-salaries],
+[data-show-opinions],
+.show_reviews,
+.show_salaries,
+.show_opinions {
+    display: none !important;
+}
+
+/* Botón “ver más opciones” (3 puntos) */
+[data-offer-detail-more-options-container],
+[data-offer-detail-more-options-popup],
+.opt_dots,
+.opt_bubble {
+    display: none !important;
+}
+
+/* Botones del header que disparan acciones externas */
+.box_buttons,
+.box_buttons * {
+    display: none !important;
+}
+
+/* Links externos dentro del detalle */
+.box_detail a[href*="computrabajo.com"] {
+    display: none !important;
+}
+
+/* Footer y legales de Computrabajo */
+.footer_c,
+.footer_c * {
+    display: none !important;
+}
+
+
+
+</style></head>
 <body class="">
 <script>if (document.referrer && !document.referrer.includes("ar.computrabajo.com")) { var date = new Date; date.setTime(date.getTime() + 864e5); var expires = "; expires=" + date.toUTCString(); document.cookie = "extrfr=" + document.referrer + expires + "; path=/;domain=ar.computrabajo.com" }</script>
 <input id="useLoginSecure" type="hidden" value="true"/>
@@ -4812,16 +4854,7 @@ Hace  5  días</p></div></article>
 </script>
 <footer class="">
 <div class="footer_c">
-<div class="container">
-<p>
 
-                Copyright 2014 - 2025  DGNET LTD.
-
-            </p>
-<div class="mb10">
-<a class="fc_aux" href="https://ar.computrabajo.com/avisolegal/" rel="nofollow" title="Aviso legal">Aviso legal</a> / <a class="fc_aux" href="https://ar.computrabajo.com/privacidad/" rel="nofollow" title="privacidad">privacidad</a>
-</div>
-</div>
 </div>
 </footer>
 </div>
