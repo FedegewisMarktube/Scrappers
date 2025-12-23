@@ -5980,6 +5980,31 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+<script data-custom-ofertas="anti-redirect">
+(function () {
+  const BLOCK_HOSTS = ["computrabajo.com", "ct-stc.com", "candidato.ar.computrabajo.com", "ar.computrabajo.com"];
+
+  // Bloquea cualquier <a> o elemento con data-path-url / data-path que apunte afuera
+  document.addEventListener("click", function (e) {
+    const a = e.target.closest("a");
+    const el = e.target.closest("[data-path-url],[data-path]");
+
+    const href = a?.getAttribute("href") || "";
+    const pathUrl = el?.getAttribute("data-path-url") || "";
+    const path = el?.getAttribute("data-path") || "";
+
+    const target = (href + " " + pathUrl + " " + path).toLowerCase();
+
+    if (BLOCK_HOSTS.some(h => target.includes(h))) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      return false;
+    }
+  }, true); // capture=true para ganar a cualquier handler
+})();
+</script>
+
 
 </body>
 </html>
