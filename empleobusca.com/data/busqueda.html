@@ -41,18 +41,20 @@
       padding: 12px 12px;
     }
 
-    .brand{
+    /* Logo (igual en todas) */
+    a.logo{
       display:flex;
       align-items:center;
-      gap: 10px;
+      gap:10px;
       min-width: 0;
     }
-    .brand img{
+    a.logo .logo_img{
       height: 34px;
-      width: auto;
+      width:auto;
       display:block;
+      object-fit:contain;
     }
-    .brand .name{
+    a.logo .name{
       font-weight:700;
       color:#313944;
       white-space:nowrap;
@@ -92,10 +94,7 @@
     h1{ margin:0 0 6px; font-size: 28px; }
     .muted{ opacity:.75; margin:0; }
 
-    /* Results */
-    #resultados{ margin-top: 16px; }
-
-    /* Cards (igual a buenos_aires_p1) */
+    /* Cards (igual a páginas) */
     .box_offer{
       padding:20px 25px;
       margin:0 0 15px;
@@ -106,12 +105,9 @@
       background:#fff;
       overflow:hidden;
     }
-    .box_offer:hover{
-      box-shadow:3px 3px 6px 0 rgba(0,0,0,0.10);
-    }
+    .box_offer:hover{ box-shadow:3px 3px 6px 0 rgba(0,0,0,0.10); }
     .box_offer.sel{ border-color:#005DA9; }
 
-    /* Utilities mínimas (para look Computrabajo) */
     .fs18{ font-size:18px; }
     .fs16{ font-size:16px; }
     .fs13{ font-size:13px; }
@@ -136,78 +132,91 @@
       padding:16px 18px;
     }
 
-    /* ===== LOGO EMPLEO BUSCA ===== */
-    a.logo {
-      display: inline-flex;
-      align-items: center;
-      height: 60px;
+    /* ===== Layout 2 columnas ===== */
+    .layout{
+      display:grid;
+      grid-template-columns: 1fr 360px;
+      gap: 16px;
+      margin-top: 16px;
+      align-items:start;
+    }
+    .col_detail{
+      position: sticky;
+      top: 86px;
+      height: calc(100vh - 110px);
     }
 
-    a.logo .logo_img {
-      max-width: 240px;
-      width: 100%;
-      height: auto;
-      object-fit: contain;
-      display: block;
+    /* ===== Panel detalle (como páginas) ===== */
+    .detail_box{
+      background:#fff;
+      border:1px solid #e1e5ea;
+      border-radius: 12px;
+      overflow:hidden;
+    }
+    .detail_title{
+      padding: 14px 16px;
+      border-bottom:1px solid #e1e5ea;
+      font-weight:700;
+    }
+    .detail_content{
+      padding: 14px 16px;
+      max-height: calc(100vh - 170px);
+      overflow:auto;
+      color:#313944;
+      font-size:14px;
+      line-height:1.45;
     }
 
-    /* Mobile */
-    @media (max-width: 768px) {
-      a.logo .logo_img {
-        max-width: 180px;
-      }
+    .detail_header{
+      border-bottom:1px solid #e1e5ea;
+      padding-bottom:10px;
+      margin-bottom:12px;
     }
-    /* ===== Layout 2 columnas (como páginas normales) ===== */
-.layout{
-  display:grid;
-  grid-template-columns: 1fr 360px;
-  gap: 16px;
-  margin-top: 16px;
-}
+    .detail_jobtitle{
+      font-size:18px;
+      font-weight:700;
+      margin:0 0 6px;
+    }
+    .detail_meta{
+      margin:0;
+      color:#6b7785;
+      font-size:13px;
+    }
+    .detail_meta b{ color:#313944; font-weight:700; }
 
-.col_detail{
-  position: sticky;
-  top: 86px; /* queda abajo de la topbar */
-  height: calc(100vh - 110px);
-}
+    .detail_body p{ margin: 0 0 10px; }
+    .detail_body ul, .detail_body ol{ margin: 8px 0 12px 18px; }
+    .detail_body li{ margin: 4px 0; }
 
-.detail_box{
-  background:#fff;
-  border:1px solid #e1e5ea;
-  border-radius: 12px;
-  overflow:hidden;
-}
+    .detail_tags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    .detail_tag{
+      font-size:12px;
+      padding:6px 10px;
+      border:1px solid #e1e5ea;
+      border-radius:999px;
+      background:#f7f9fb;
+      color:#313944;
+    }
 
-.detail_title{
-  padding: 14px 16px;
-  border-bottom:1px solid #e1e5ea;
-  font-weight:700;
-}
-
-.detail_content{
-  padding: 14px 16px;
-  max-height: calc(100vh - 170px);
-  overflow:auto;
-  color:#313944;
-  line-height: 1.45;
-}
-
-/* Mobile: 1 columna */
-@media (max-width: 900px){
-  .layout{ grid-template-columns: 1fr; }
-  .col_detail{ position: static; height:auto; }
-  .detail_content{ max-height: none; }
-}
+    @media (max-width: 900px){
+      .layout{ grid-template-columns: 1fr; }
+      .col_detail{ position: static; height:auto; }
+      .detail_content{ max-height: none; }
+    }
   </style>
 </head>
 
 <body>
 
-  <!-- Topbar con logo + volver -->
   <div class="topbar">
     <div class="container">
-      <a class="brand" href="./home.html" aria-label="Volver al inicio">
-        <img src="./logo_Empleo_Busca.png" alt="Logo" />
+      <a class="logo" href="./home.html" aria-label="Volver al inicio">
+        <img class="logo_img" src="../data/logo_Empleo_Busca.png" alt="EmpleoBusca" />
         <div class="name">EmpleoBusca</div>
       </a>
 
@@ -224,17 +233,23 @@
     </div>
 
     <div class="layout">
-  <div id="resultados" class="col_list"></div>
+      <div id="resultados" class="col_list"></div>
 
-  <aside id="panel_detalle" class="col_detail">
-    <div class="detail_box">
-      <div class="detail_title">Detalle</div>
-      <div id="detalle_contenido" class="detail_content">
-        Seleccioná una oferta para ver la descripción.
-      </div>
+      <!-- Panel derecho: con data-* como en páginas -->
+      <aside class="col_detail">
+        <div class="detail_box" data-offers-grid-box-detail>
+          <div class="detail_title">Detalle</div>
+
+          <!-- Tu JS puede escribir acá (modo “páginas”) -->
+          <div class="detail_content" data-offers-grid-detail-container>
+            <!-- Y también queda este id por compatibilidad (si tu JS usa #detalle_contenido) -->
+            <div id="detalle_contenido">
+              Seleccioná una oferta para ver la descripción.
+            </div>
+          </div>
+        </div>
+      </aside>
     </div>
-  </aside>
-</div>
   </div>
 
   <script src="./busqueda.js"></script>
