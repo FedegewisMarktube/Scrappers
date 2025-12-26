@@ -6,8 +6,7 @@ const titulo = document.getElementById('titulo');
 const subtitulo = document.getElementById('subtitulo');
 const contenedor = document.getElementById('resultados');
 
-const panel = document.getElementById('panel_detalle');
-const detalle = document.getElementById('detalle_contenido');
+const detalle = document.getElementById('detalle_contenido'); // panel derecho
 
 if (!query) {
   titulo.innerText = 'Búsqueda global';
@@ -27,10 +26,7 @@ const ciudades = [
 const MAX_PAGINAS = 50;
 let totalEncontrados = 0;
 
-function txt(el) {
-  return (el && el.textContent ? el.textContent : '').trim();
-}
-
+/* ===== helpers ===== */
 function escapeHtml(str) {
   return (str || '')
     .replaceAll('&', '&amp;')
@@ -40,76 +36,96 @@ function escapeHtml(str) {
     .replaceAll("'", '&#039;');
 }
 
-function extraerData(oferta, ciudadNombre) {
-  const aTitulo = oferta.querySelector('h2 a') || oferta.querySelector('a[href]');
-  const titulo = txt(aTitulo) || txt(oferta.querySelector('h2')) || 'Oferta';
-
-  // empresa / ubicación / fecha: intentos flexibles
-  let empresa = txt(oferta.querySelector('.company')) || '';
-  let ubicacion = txt(oferta.querySelector('.mr10')) || txt(oferta.querySelector('.place')) || '';
-  let fecha = txt(oferta.querySelector('.fc_aux')) || '';
-
-  // si no encontró empresa, probamos primer <p> luego del h2
-  if (!empresa) {
-    const ps = Array.from(oferta.querySelectorAll('p'));
-    if (ps.length) empresa = txt(ps[0]);
-  }
-
-  // descripción: si en tu HTML existe algo tipo .descripcion_scrapeada, lo usamos
-  // (si no existe, mostramos placeholder)
-  const descNode = oferta.querySelector('.descripcion_scrapeada') || oferta.querySelector('[data-desc]');
-  const descripcionHtml = descNode ? (descNode.innerHTML || '').trim() : '';
-
-  // también agrego una linea de "ciudad" para que sepas de dónde vino (podés borrarlo si no querés)
-  const origen = ciudadNombre || '';
-
-  return { titulo, empresa, ubicacion, fecha, descripcionHtml, origen };
+function txt(el) {
+  return (el && el.textContent ? el.textContent : '').trim();
 }
 
-function renderCard(data, id) {
+/* Sacamos datos + “detalle HTML” de la oferta original */
+function extraerData(oferta) {
+  const aTitulo = oferta.querySelector('h2 a') || oferta.querySelector('a[href]');
+  const t = txt(aTitulo) || txt(oferta.querySelector('h2')) || 'Oferta';
+
+  // Empresa / ubicación / fecha (más tolerante)
+  const ps = Array.from(oferta.querySelectorAll('p')).map(p => txt(p)).filter(Boolean);
+
+  const empresa = ps[0] || '';
+  const ubicacion = ps[1] || '';
+  const fecha = ps[2] || '';
+
+  // ✅ Intentamos agarrar una descripción real si existe en el HTML
+  // (probamos varias clases típicas)
+  const descNode =
+    oferta.querySelector('.descripcion_scrapeada') ||
+    oferta.querySelector('.box_description') ||
+    oferta.querySelector('.description') ||
+    oferta.querySelector('[data-desc]') ||
+    null;
+
+  const descripcionHtml = descNode ? (descNode.innerHTML || '').trim() : '';
+
+  // Si no hay bloque de descripción, como fallback mostramos el contenido entero de la oferta (sin links activos)
+  // Esto te asegura que “se vea parecido” a lo que guardaste.
+  const fallbackHtml = oferta.innerHTML || '';
+
+  return { titulo: t, empresa, ubicacion, fecha, descripcionHtml, fallbackHtml };
+}
+
+/* Render card limpia (mismo formato) y guardamos el detalle en data-attrs */
+function renderCard(data) {
+  // guardamos el detalle como string en atributos (escapeado) para abrirlo en el panel
+  const detailPayload = encodeURIComponent(data.descripcionHtml || data.fallbackHtml || '');
+
   return `
-    <article class="box_offer" data-id="${id}">
+    <article class="box_offer" data-detail="${detailPayload}">
       <h2 class="fs18 fwB prB">
-        <a class="fc_base t_ellipsis" href="#" role="button" data-no-nav="1">
-          ${escapeHtml(data.titulo)}
-        </a>
+        <a class="fc_base t_ellipsis" href="#" data-no-nav="1">${escapeHtml(data.titulo)}</a>
       </h2>
 
       <p class="dFlex vm_fx fs16 fc_base mt5">
-        <span class="t_ellipsis">${escapeHtml(data.empresa || '')}</span>
+        <span class="t_ellipsis">${escapeHtml(data.empresa)}</span>
       </p>
 
       <p class="fs16 fc_base mt5">
-        <span class="mr10">${escapeHtml(data.ubicacion || '')}</span>
+        <span class="mr10">${escapeHtml(data.ubicacion)}</span>
       </p>
 
       <p class="fs13 fc_aux mt15">
-        ${escapeHtml(data.fecha || '')}
+        ${escapeHtml(data.fecha)}
       </p>
-
-      ${data.origen ? `<p class="fs13 fc_aux mt5">Origen: ${escapeHtml(data.origen)}</p>` : ''}
-
-      <!-- Guardamos la descripción para el panel -->
-      <div class="descripcion_scrapeada" style="display:none;">${data.descripcionHtml || ''}</div>
     </article>
   `;
 }
 
-function mostrarDetalle(card) {
-  const desc = card.querySelector('.descripcion_scrapeada');
-  const html = (desc && desc.innerHTML ? desc.innerHTML.trim() : '');
-
-  if (html) {
-    detalle.innerHTML = html;
-  } else {
-    detalle.innerHTML = `
-      <div class="nores">
-        No hay descripción disponible para esta oferta en el HTML guardado.
-      </div>
-    `;
+/* ====== Click delegado: bloquear links + abrir panel ====== */
+contenedor.addEventListener('click', (e) => {
+  // 1) bloquear CUALQUIER link dentro de resultados (sin alert)
+  const anyLink = e.target.closest('a');
+  if (anyLink) {
+    e.preventDefault();
+    e.stopPropagation();
   }
-}
 
+  // 2) si clickeó una card, selecciona + abre detalle
+  const card = e.target.closest('.box_offer');
+  if (!card) return;
+
+  contenedor.querySelectorAll('.box_offer.sel').forEach(x => x.classList.remove('sel'));
+  card.classList.add('sel');
+
+  if (!detalle) return;
+
+  const payload = card.getAttribute('data-detail') || '';
+  const html = decodeURIComponent(payload);
+
+  // Limpieza: desactivar links dentro del panel para que no navegue
+  const safeHtml = html
+    .replace(/<a\b/gi, '<a data-no-nav="1"')
+    .replace(/href\s*=\s*(['"]).*?\1/gi, 'href="#"');
+
+  detalle.innerHTML = safeHtml || `<div class="nores">No hay detalle disponible para esta oferta.</div>`;
+});
+
+/* ====== Buscar ====== */
 async function buscarCiudad(ciudad) {
   for (let pagina = 1; pagina <= MAX_PAGINAS; pagina++) {
     const url = `./${ciudad.slug}/${ciudad.slug}_p${pagina}.html`;
@@ -133,10 +149,11 @@ async function buscarCiudad(ciudad) {
     ofertas.forEach(oferta => {
       const texto = (oferta.innerText || '').toLowerCase();
       if (texto.includes(query)) {
-        const data = extraerData(oferta, ciudad.nombre);
-        const id = `${ciudad.slug}_p${pagina}_${totalEncontrados + 1}`;
+        const data = extraerData(oferta);
 
-        contenedor.insertAdjacentHTML('beforeend', renderCard(data, id));
+        // ✅ IMPORTANTÍSIMO:
+        // NO clonamos la oferta original, renderizamos card limpia
+        contenedor.insertAdjacentHTML('beforeend', renderCard(data));
         totalEncontrados++;
       }
     });
@@ -150,26 +167,10 @@ async function buscarGlobal() {
 
   if (totalEncontrados === 0) {
     contenedor.innerHTML = '<div class="nores">No se encontraron resultados.</div>';
-    detalle.innerHTML = 'No hay resultados para mostrar.';
+    if (detalle) detalle.innerHTML = 'No hay resultados para mostrar.';
   }
 
   subtitulo.innerText = `Resultados encontrados: ${totalEncontrados}`;
 }
-
-contenedor.addEventListener('click', (e) => {
-  const a = e.target.closest('a[data-no-nav="1"]');
-  if (a) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
-  const card = e.target.closest('.box_offer');
-  if (!card) return;
-
-  contenedor.querySelectorAll('.box_offer.sel').forEach(x => x.classList.remove('sel'));
-  card.classList.add('sel');
-
-  mostrarDetalle(card);
-});
 
 buscarGlobal();
