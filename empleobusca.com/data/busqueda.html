@@ -323,6 +323,37 @@
 .b_primary.big{
   padding:10px 18px;
 }
+/* === FORZAR PROPORCIÓN como Buenos Aires (sin que nada lo pise) === */
+.layout{
+  display:grid !important;
+  grid-template-columns: 58% 42% !important;  /* ✅ derecha más grande */
+  gap: 15px !important;
+  align-items:start !important;
+}
+
+/* la columna izquierda NO se estira raro */
+.col_list{
+  min-width: 0 !important;
+}
+
+/* el panel derecho ocupa el 42% real (no fijo) */
+.col_detail{
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  position: sticky;
+  top: 86px;
+  height: calc(100vh - 110px);
+}
+
+/* asegura que el contenedor interno del panel use todo el ancho */
+.col_detail .detail_box,
+.col_detail .box_detail{
+  width: 100% !important;
+}
+.container{
+  max-width: 1240px !important;
+}
 
   </style>
 </head>
@@ -330,7 +361,7 @@
 <body>
 
   <div class="topbar">
-    <div class="container">
+    <div class="container" style="display:flex; gap:10px; align-items:center;">
      <a class="logo" title="Empleo Busca" href="../data/home.html">
 
 			<img
