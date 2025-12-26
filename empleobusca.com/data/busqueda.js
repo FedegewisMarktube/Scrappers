@@ -122,25 +122,22 @@ function renderDetalle(data) {
 
   const desc = buildDescripcionHtml(data.descripcionHtml);
 
-  const cuerpo = desc
-    ? `<div class="desc_block">${desc}</div>`
-    : `<p class="fc_aux" style="margin:0;">Sin descripción disponible.</p>`;
-
   detailContainer.innerHTML = `
     <div class="box_border">
-      <h1>${escapeHtml(data.titulo)}</h1>
+      <p class="fs28 fwB mb10">${escapeHtml(data.titulo)}</p>
 
-      <p class="company_line">${escapeHtml(data.empresa)}</p>
-      <p class="place_line">${escapeHtml(data.ubicacion)}</p>
+      <p class="fs22 fwB">${escapeHtml(data.empresa)}</p>
+      <p class="mb15">${escapeHtml(data.ubicacion)}</p>
 
-      <div style="margin:14px 0 8px;">
-        <button class="btn_apply">Postularme</button>
+      <span class="b_primary big" role="button" tabindex="0">Postularme</span>
+
+      <div class="mt15">
+        ${desc ? desc : `<p class="fc_aux">Sin descripción disponible.</p>`}
       </div>
-
-      ${cuerpo}
     </div>
   `;
 }
+
 
 
 /* ===== Click delegado: abrir panel + marcar sel ===== */
