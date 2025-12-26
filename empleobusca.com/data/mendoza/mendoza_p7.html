@@ -33,16 +33,43 @@
 
 [data-offers-grid-loading-container] {
     display: none !important;
-}</style></head>
+}
+
+/* ===== LOGO EMPLEO BUSCA ===== */
+a.logo {
+  display: inline-flex;
+  align-items: center;
+  height: 60px;
+}
+
+a.logo .logo_img {
+  max-width: 240px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  a.logo .logo_img {
+    max-width: 180px;
+  }
+}
+</style></head>
 <body class="">
 <script>if (document.referrer && !document.referrer.includes("ar.computrabajo.com")) { var date = new Date; date.setTime(date.getTime() + 864e5); var expires = "; expires=" + date.toUTCString(); document.cookie = "extrfr=" + document.referrer + expires + "; path=/;domain=ar.computrabajo.com" }</script>
 <input id="useLoginSecure" type="hidden" value="true"/>
 <input id="_id_portal" type="hidden" value="5"/>
-<link href="//cp.ct-stc.com/web8/20251126.01_01.26/c/css/header_portal.css" rel="stylesheet" type="text/css"/>
+<link href="../CSS/header_portal.css" rel="stylesheet" type="text/css"/>
 <header class="header_web" id="header_menu">
 <div class="container">
-<a class="logo" title="Computrabajo" href="../home.html">
-<img alt="Computrabajo Argentina" class="logo_img" data-header-candidatos="" height="30" src="//cp.ct-stc.com/web8/20251126.01_01.26/c/img/logos/logoct.svg" srcset="//cp.ct-stc.com/web8/20251126.01_01.26/c/img/logos/logoct.svg" width="133"/>
+<a class="logo" title="Empleo Busca" href="../home.html">
+  <img
+    src="../logo_Empleo_Busca.png"
+    alt="Empleo Busca Argentina"
+    class="logo_img"
+  />
 </a>
 <div class="box_search_content" data-box-search-container="">
 <span class="icon i_close_w cp" data-box-search-close="" onclick=""></span>
