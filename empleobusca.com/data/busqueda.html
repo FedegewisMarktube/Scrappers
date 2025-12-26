@@ -19,7 +19,7 @@
     a:hover{ text-decoration:underline; }
 
     .container{
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 16px 12px 28px;
     }
@@ -133,18 +133,23 @@
     }
 
     /* ===== Layout 2 columnas ===== */
-    .layout{
-      display:grid;
-      grid-template-columns: 1fr 360px;
-      gap: 16px;
-      margin-top: 16px;
-      align-items:start;
-    }
-    .col_detail{
-      position: sticky;
-      top: 86px;
-      height: calc(100vh - 110px);
-    }
+    /* Igual feeling que buenos_aires_p1: gap 15px + panel derecho más ancho */
+.layout{
+  display:grid;
+  gap:15px;              /* en BA es 15px */
+  margin-top:16px;
+  grid-template-columns: minmax(520px, 1fr) 460px; /* ✅ derecha más ancha */
+  align-items:start;
+}
+
+/* panel derecho fijo (no se achica) */
+.col_detail{
+  position: sticky;
+  top: 86px;
+  width: 460px;
+  height: calc(100vh - 110px);
+}
+
 
     /* ===== Panel detalle (como páginas) ===== */
     .detail_box{
@@ -322,10 +327,14 @@
 
   <div class="topbar">
     <div class="container">
-      <a class="logo" href="./home.html" aria-label="Volver al inicio">
-        <img class="logo_img" src="../data/logo_Empleo_Busca.png" alt="EmpleoBusca" />
-        <div class="name">EmpleoBusca</div>
-      </a>
+     <a class="logo" title="Empleo Busca" href="../data/home.html">
+
+			<img
+            src="../data/logo_Empleo_Busca.png"
+            alt="Empleo Busca Argentina"
+            class="logo_img"
+            />
+		</a>
 
       <div style="display:flex; gap:10px; align-items:center;">
         <a class="btn" href="./home.html">← Volver al inicio</a>
