@@ -2,11 +2,9 @@
 # Proyecto Scrapper Computrabajo
 # =========================
 
-# Carpeta de caché de ofertas individuales (NO se sube a Git)
-ar.computrabajo/data/ofertas_detalle/
-*/data/ofertas_detalle/
-# Cache de ofertas scrapeadas (no versionar)
-ar.computrabajo/data/ofertas_detalle/**
+# Alternativa genérica para cualquier sitio con /data/ofertas_detalle
+**/data/ofertas_detalle/
+**/data/ofertas_detalle/**
 
 
 # Archivos generados automáticamente
