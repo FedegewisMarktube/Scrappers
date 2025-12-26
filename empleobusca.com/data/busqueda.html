@@ -19,7 +19,7 @@
     a:hover{ text-decoration:underline; }
 
     .container{
-      max-width: 1200px;
+      max-width: 1240px;
       margin: 0 auto;
       padding: 16px 12px 28px;
     }
@@ -134,21 +134,25 @@
 
     /* ===== Layout 2 columnas ===== */
     /* Igual feeling que buenos_aires_p1: gap 15px + panel derecho más ancho */
+/* Layout igual a buenos_aires_p1 */
 .layout{
   display:grid;
-  gap:15px;              /* en BA es 15px */
+  grid-template-columns: 740px 1fr; /* izquierda fija, derecha grande */
+  gap: 15px;
   margin-top:16px;
-  grid-template-columns: minmax(520px, 1fr) 460px; /* ✅ derecha más ancha */
-  align-items:start;
+  align-items:flex-start;
 }
+
 
 /* panel derecho fijo (no se achica) */
 .col_detail{
   position: sticky;
   top: 86px;
-  width: 460px;
+  min-width: 460px;
+  max-width: 460px;
   height: calc(100vh - 110px);
 }
+
 
 
     /* ===== Panel detalle (como páginas) ===== */
