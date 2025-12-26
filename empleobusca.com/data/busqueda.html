@@ -259,6 +259,61 @@
 .layout{
   grid-template-columns: 1fr 420px; /* antes 360 */
 }
+/* === Panel derecho igual a páginas === */
+.box_detail{
+  background:#fff;
+  position:sticky;
+  top:86px;
+  height: calc(100vh - 110px);
+  overflow-y:auto;
+  overflow-x:hidden;
+  border:1px solid #e1e5ea;
+  border-radius:10px;
+  padding:0 30px 30px;
+}
+
+/* Tipografía “real” del panel */
+.box_detail li,
+.box_detail p:not([class*=fs]),
+.box_detail span:not([class*=fs]){
+  font-size:15px;
+}
+
+.box_detail li,
+.box_detail p:not([class*=lh]),
+.box_detail span:not([class*=lh]){
+  line-height:1.6;
+}
+
+/* tamaños como en páginas */
+.box_detail .fs28{ font-size:2.8rem !important; line-height:1 !important; }
+.box_detail .fs22{ font-size:2.2rem !important; }
+
+/* box_border como en páginas (separadores) */
+.box_border{
+  padding:10px 25px;
+  margin-bottom:15px;
+}
+.box_border:not([class*=bb0]):not(:last-of-type){
+  border-bottom:1px solid #e1e5ea;
+}
+
+/* Botón estilo “Computrabajo” (minimal) */
+.b_primary{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:#0D3878;
+  color:#fff;
+  border-radius:999px;
+  font-weight:700;
+  cursor:pointer;
+  text-decoration:none;
+  border:0;
+}
+.b_primary.big{
+  padding:10px 18px;
+}
 
   </style>
 </head>
@@ -288,19 +343,14 @@
       <div id="resultados" class="col_list"></div>
 
       <!-- Panel derecho: con data-* como en páginas -->
-      <aside class="col_detail">
-        <div class="detail_box" data-offers-grid-box-detail>
-          <div class="detail_title">Detalle</div>
+     <aside class="box_detail" data-offers-grid-box-detail>
+    <div class="hide" data-offers-grid-detail-container></div>
 
-          <!-- Tu JS puede escribir acá (modo “páginas”) -->
-          <div class="detail_content" data-offers-grid-detail-container>
-            <!-- Y también queda este id por compatibilidad (si tu JS usa #detalle_contenido) -->
-            <div id="detalle_contenido">
-              Seleccioná una oferta para ver la descripción.
-            </div>
-          </div>
-        </div>
-      </aside>
+    <div class="box_border" id="detalle_contenido">
+      Seleccioná una oferta para ver la descripción.
+    </div>
+  </aside>
+
     </div>
   </div>
 
