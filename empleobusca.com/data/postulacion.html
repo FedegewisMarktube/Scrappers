@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Postulación | Empleo Busca</title>
+
+  <!-- Mantiene el header parecido a tus páginas -->
+  <link href="./CSS/header_portal.css" rel="stylesheet" type="text/css"/>
+
+  <style>
+    body { background:#F6FBFF; font-family: Arial, Helvetica, sans-serif; }
+    .container { width: 1180px; max-width: calc(100% - 40px); margin: 0 auto; }
+    .card {
+      margin: 20px auto;
+      background: #fff;
+      border: 1px solid #e1e5ea;
+      border-radius: 10px;
+      box-shadow: 0 0 9px 1px rgba(24,26,31,0.07);
+      padding: 20px;
+      max-width: 720px;
+    }
+    h1 { font-size: 22px; margin-bottom: 10px; color:#0b2f66; }
+    p  { margin: 0 0 14px; color:#313944; }
+    label { display:block; font-weight: 700; margin: 10px 0 6px; }
+    input {
+      width: 100%;
+      padding: 12px 12px;
+      border: 1px solid #e1e5ea;
+      border-radius: 10px;
+      font-size: 16px;
+      outline: none;
+    }
+    input:focus { border-color:#0D3878; }
+    .row { display:flex; gap: 12px; }
+    .row > div { flex: 1; }
+    .actions { display:flex; gap: 10px; margin-top: 16px; }
+    .btn {
+      border: 1px solid #0D3878;
+      background:#0D3878;
+      color:#fff;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .btn.secondary {
+      background:#fff;
+      color:#0D3878;
+    }
+    .small { font-size: 13px; color:#6b7786; margin-top: 10px; }
+    .offerBox {
+      background:#F3F8FF;
+      border:1px solid #d9e6f7;
+      border-radius:10px;
+      padding:12px;
+      margin: 12px 0 16px;
+      color:#0b2f66;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header_web" id="header_menu">
+    <div class="container">
+      <a class="logo" title="Empleo Busca" href="./home.html" style="display:inline-flex;align-items:center;height:60px;">
+        <img src="./logo_Empleo_Busca.png" alt="Empleo Busca Argentina" style="max-width:240px;width:100%;height:auto;object-fit:contain;display:block;">
+      </a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <h1>Formulario de postulación</h1>
+      <p>Completá tus datos y enviá tu solicitud.</p>
+
+      <div id="offerInfo" class="offerBox" style="display:none;"></div>
+
+      <form id="formPostulacion">
+        <div class="row">
+          <div>
+            <label for="nombre">Nombre</label>
+            <input id="nombre" name="nombre" type="text" required />
+          </div>
+          <div>
+            <label for="apellido">Apellido</label>
+            <input id="apellido" name="apellido" type="text" required />
+          </div>
+        </div>
+
+        <label for="email">Mail</label>
+        <input id="email" name="email" type="email" required />
+
+        <div class="actions">
+          <button class="btn" type="submit">Enviar</button>
+          <button class="btn secondary" type="button" id="btnCancelar">Cancelar</button>
+        </div>
+
+        <div class="small">Al enviar, tu solicitud se registrará en el sitio.</div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Mostrar info de oferta si viene por querystring
+    const params = new URLSearchParams(location.search);
+    const oi = params.get("oi") || "";
+    const t  = params.get("t") || "";
+    const offerInfo = document.getElementById("offerInfo");
+    if (oi || t) {
+      offerInfo.style.display = "block";
+      offerInfo.textContent = `Oferta: ${t ? decodeURIComponent(t) : "(sin título)"}  |  ID: ${oi || "-"}`;
+    }
+
+    document.getElementById("btnCancelar").addEventListener("click", () => {
+      window.location.href = "./home.html";
+    });
+
+    document.getElementById("formPostulacion").addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const nombre = (document.getElementById("nombre").value || "").trim();
+      const apellido = (document.getElementById("apellido").value || "").trim();
+      const email = (document.getElementById("email").value || "").trim();
+
+      if (!nombre || !apellido || !email) {
+        alert("Completá nombre, apellido y mail.");
+        return;
+      }
+
+      // “Cartel” + OK => vuelve al inicio
+      alert("Su solicitud ha sido enviada");
+      window.location.href = "./home.html";
+    });
+  </script>
+</body>
+</html>

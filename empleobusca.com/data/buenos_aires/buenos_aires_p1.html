@@ -5620,6 +5620,96 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+<script>
+(function () {
+  function getOfferIdFromEl(el) {
+    // 1) Si viene de Computrabajo, suele estar acá:
+    const hrefApply = el.getAttribute("data-href-offer-apply") || el.getAttribute("data-href-offer-apply".toLowerCase());
+    if (hrefApply) {
+      try {
+        const u = new URL(hrefApply, window.location.origin);
+        const oi = u.searchParams.get("oi");
+        if (oi) return oi;
+      } catch (e) {}
+    }
+
+    // 2) Si está como atributo oi="...." en shortcuts
+    const oiAttr = el.getAttribute("oi");
+    if (oiAttr) return oiAttr;
+
+    // 3) Si está dentro de un artículo con data-id
+    const article = el.closest("article[data-id]");
+    if (article) return article.getAttribute("data-id");
+
+    return "";
+  }
+
+  function getOfferTitleFromEl(el) {
+    // Intentar sacar el título visible de la oferta seleccionada/detalle
+    const detailTitle =
+      document.querySelector(".box_detail h1, .box_detail h2, .box_detail .title_offer h1, .box_detail .title_offer h2");
+    if (detailTitle && detailTitle.textContent.trim()) return detailTitle.textContent.trim();
+
+    const art = el.closest("article.box_offer");
+    const h2 = art ? art.querySelector("h2") : null;
+    if (h2 && h2.textContent.trim()) return h2.textContent.trim();
+
+    return "";
+  }
+
+  function goToForm(el) {
+    const oi = getOfferIdFromEl(el);
+    const t = getOfferTitleFromEl(el);
+    const url =
+      "./postulacion.html" +
+      (oi || t ? ("?oi=" + encodeURIComponent(oi) + "&t=" + encodeURIComponent(t)) : "");
+    window.location.href = url;
+  }
+
+  // 1) Botón grande “Postularme” (es <span class="b_primary big" data-apply-link ...>)
+  function bindPostularButtons() {
+    // Cazamos por atributos típicos
+    const candidates = Array.from(document.querySelectorAll("[data-apply-link], [shortcut-apply-ac], [data-href-offer-apply]"));
+
+    // Y también por texto “Postularme / Postular” por si cambia algo
+    const byText = Array.from(document.querySelectorAll("span, a, button")).filter(n => {
+      const txt = (n.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();
+      return txt === "postularme" || txt === "postular";
+    });
+
+    const all = Array.from(new Set([...candidates, ...byText]));
+
+    all.forEach(el => {
+      // evitamos enganchar cosas invisibles o tags raros
+      el.style.cursor = "pointer";
+
+      // IMPORTANTE: capturamos antes que otros scripts
+      el.addEventListener("click", function (e) {
+        const txt = (el.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();
+        const looksLikeApply =
+          el.hasAttribute("data-apply-link") ||
+          el.hasAttribute("shortcut-apply-ac") ||
+          el.hasAttribute("data-href-offer-apply") ||
+          txt === "postularme" ||
+          txt === "postular";
+
+        if (!looksLikeApply) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+        goToForm(el);
+      }, true);
+    });
+  }
+
+  bindPostularButtons();
+
+  // 2) Como el panel derecho se “renderiza” dinámicamente, re-intentamos cada tanto
+  // (muy liviano, y asegura que siempre quede enganchado)
+  const mo = new MutationObserver(() => bindPostularButtons());
+  mo.observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>
 
 
 </body>
