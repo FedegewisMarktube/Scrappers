@@ -122,38 +122,26 @@ function renderDetalle(data) {
 
   const desc = buildDescripcionHtml(data.descripcionHtml);
 
-  // Si no hay desc, mostramos un fallback más prolijo
   const cuerpo = desc
-    ? `<div style="font-size:15px; line-height:1.5;">${desc}</div>`
+    ? `<div class="desc_block">${desc}</div>`
     : `<p class="fc_aux" style="margin:0;">Sin descripción disponible.</p>`;
 
-  // ✅ misma estructura que el script original de buenos_aires_p1
   detailContainer.innerHTML = `
-    <div class="box_border" style="padding:20px;">
-      <h1 class="fs22 fwB" style="margin-bottom:5px;">
-        ${escapeHtml(data.titulo)}
-      </h1>
+    <div class="box_border">
+      <h1>${escapeHtml(data.titulo)}</h1>
 
-      <p class="fwB" style="margin:0;">${escapeHtml(data.empresa)}</p>
-      <p style="margin:0 0 15px 0;">${escapeHtml(data.ubicacion)}</p>
+      <p class="company_line">${escapeHtml(data.empresa)}</p>
+      <p class="place_line">${escapeHtml(data.ubicacion)}</p>
 
-      <div style="margin:15px 0;">
-        <button style="
-          background:#0D3878;
-          color:#fff;
-          padding:10px 20px;
-          border-radius:25px;
-          border:none;
-          font-weight:bold;
-          cursor:pointer;">
-          Postularme
-        </button>
+      <div style="margin:14px 0 8px;">
+        <button class="btn_apply">Postularme</button>
       </div>
 
       ${cuerpo}
     </div>
   `;
 }
+
 
 /* ===== Click delegado: abrir panel + marcar sel ===== */
 contenedor.addEventListener('click', (e) => {
