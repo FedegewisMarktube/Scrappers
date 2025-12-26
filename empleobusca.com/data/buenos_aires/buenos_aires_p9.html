@@ -36,7 +36,30 @@
 
 [data-offers-grid-loading-container] {
     display: none !important;
-}</style></head>
+}
+
+/* ===== LOGO EMPLEO BUSCA ===== */
+a.logo {
+  display: inline-flex;
+  align-items: center;
+  height: 60px;
+}
+
+a.logo .logo_img {
+  max-width: 240px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  a.logo .logo_img {
+    max-width: 180px;
+  }
+}
+</style></head>
 <body class="">
 <input id="useLoginSecure" type="hidden" value="true"/>
 <input id="_id_portal" type="hidden" value="5"/>
