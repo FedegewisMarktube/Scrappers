@@ -9,57 +9,125 @@
   <link href="./CSS/header_portal.css" rel="stylesheet" type="text/css"/>
 
   <style>
-    body { background:#F6FBFF; font-family: Arial, Helvetica, sans-serif; }
-    .container { width: 1180px; max-width: calc(100% - 40px); margin: 0 auto; }
-    .card {
-      margin: 20px auto;
-      background: #fff;
-      border: 1px solid #e1e5ea;
-      border-radius: 10px;
-      box-shadow: 0 0 9px 1px rgba(24,26,31,0.07);
-      padding: 20px;
-      max-width: 720px;
-    }
-    h1 { font-size: 22px; margin-bottom: 10px; color:#0b2f66; }
-    p  { margin: 0 0 14px; color:#313944; }
-    label { display:block; font-weight: 700; margin: 10px 0 6px; }
-    input {
-      width: 100%;
-      padding: 12px 12px;
-      border: 1px solid #e1e5ea;
-      border-radius: 10px;
-      font-size: 16px;
-      outline: none;
-    }
-    input:focus { border-color:#0D3878; }
-    .row { display:flex; gap: 12px; }
-    .row > div { flex: 1; }
-    .actions { display:flex; gap: 10px; margin-top: 16px; }
-    .btn {
-      border: 1px solid #0D3878;
-      background:#0D3878;
-      color:#fff;
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-weight: 700;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .btn.secondary {
-      background:#fff;
-      color:#0D3878;
-    }
-    .small { font-size: 13px; color:#6b7786; margin-top: 10px; }
-    .offerBox {
-      background:#F3F8FF;
-      border:1px solid #d9e6f7;
-      border-radius:10px;
-      padding:12px;
-      margin: 12px 0 16px;
-      color:#0b2f66;
-      font-size: 14px;
-    }
-  </style>
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: #F6FBFF;
+    color: #1f2a37;
+  }
+
+  .container {
+    width: 1180px;
+    max-width: calc(100% - 32px);
+    margin: 0 auto;
+  }
+
+  .card {
+    margin: 28px auto;
+    max-width: 780px;
+    background: #fff;
+    border: 1px solid #e6edf6;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(13, 56, 120, 0.08);
+    padding: 22px 22px 18px;
+  }
+
+  h1 {
+    margin: 0 0 6px;
+    font-size: 22px;
+    color: #0D3878;
+  }
+
+  .sub {
+    margin: 0 0 14px;
+    color: #516173;
+    font-size: 14px;
+  }
+
+  .offerBox {
+    display: none;
+    background: #F3F8FF;
+    border: 1px solid #d6e6ff;
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin: 10px 0 16px;
+    color: #0b2f66;
+    font-size: 13px;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  label {
+    display: block;
+    font-weight: 700;
+    font-size: 13px;
+    margin: 0 0 6px;
+    color: #2b3b4f;
+  }
+
+  input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 12px;
+    border: 1px solid #dbe5f2;
+    border-radius: 12px;
+    font-size: 15px;
+    outline: none;
+    background: #fff;
+  }
+
+  input:focus {
+    border-color: #0D3878;
+    box-shadow: 0 0 0 3px rgba(13,56,120,0.12);
+  }
+
+  .full {
+    margin-top: 14px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .btn {
+    border: 1px solid #0D3878;
+    background: #0D3878;
+    color: #fff;
+    padding: 11px 16px;
+    border-radius: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .btn.secondary {
+    background: #fff;
+    color: #0D3878;
+  }
+
+  .small {
+    font-size: 12px;
+    color: #6b7786;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 720px) {
+    .grid { grid-template-columns: 1fr; }
+    .actions { flex-direction: column; }
+    .btn { width: 100%; }
+  }
+</style>
+
 </head>
 
 <body>
@@ -79,27 +147,31 @@
       <div id="offerInfo" class="offerBox" style="display:none;"></div>
 
       <form id="formPostulacion">
-        <div class="row">
-          <div>
-            <label for="nombre">Nombre</label>
-            <input id="nombre" name="nombre" type="text" required />
-          </div>
-          <div>
-            <label for="apellido">Apellido</label>
-            <input id="apellido" name="apellido" type="text" required />
-          </div>
-        </div>
+  <div class="grid">
+    <div>
+      <label for="nombre">Nombre</label>
+      <input id="nombre" name="nombre" type="text" required />
+    </div>
 
-        <label for="email">Mail</label>
-        <input id="email" name="email" type="email" required />
+    <div>
+      <label for="apellido">Apellido</label>
+      <input id="apellido" name="apellido" type="text" required />
+    </div>
+  </div>
 
-        <div class="actions">
-          <button class="btn" type="submit">Enviar</button>
-          <button class="btn secondary" type="button" id="btnCancelar">Cancelar</button>
-        </div>
+  <div class="full">
+    <label for="email">Mail</label>
+    <input id="email" name="email" type="email" required />
+  </div>
 
-        <div class="small">Al enviar, tu solicitud se registrará en el sitio.</div>
-      </form>
+  <div class="actions">
+    <button class="btn" type="submit">Enviar</button>
+    <button class="btn secondary" type="button" id="btnCancelar">Cancelar</button>
+  </div>
+
+  <div class="small">Al enviar, tu solicitud se registrará en el sitio.</div>
+</form>
+
     </div>
   </div>
 
@@ -107,11 +179,16 @@
     // Mostrar info de oferta si viene por querystring
     const params = new URLSearchParams(location.search);
     const oi = params.get("oi") || "";
-    const t  = params.get("t") || "";
+    let t = params.get("t") || "";
+
+    // Limpieza: si viene un texto “reportar aviso”, lo ignoramos
+    t = t ? decodeURIComponent(t) : "";
+    if (/reportar\s+este\s+aviso/i.test(t)) t = "";
+
     const offerInfo = document.getElementById("offerInfo");
-    if (oi || t) {
-      offerInfo.style.display = "block";
-      offerInfo.textContent = `Oferta: ${t ? decodeURIComponent(t) : "(sin título)"}  |  ID: ${oi || "-"}`;
+    if (oi) {
+    offerInfo.style.display = "block";
+    offerInfo.textContent = t ? `Oferta: ${t} · ID: ${oi}` : `ID de oferta: ${oi}`;
     }
 
     document.getElementById("btnCancelar").addEventListener("click", () => {

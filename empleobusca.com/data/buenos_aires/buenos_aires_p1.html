@@ -5660,9 +5660,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function goToForm(el) {
     const oi = getOfferIdFromEl(el);
     const t = getOfferTitleFromEl(el);
-    const url =
-      "./postulacion.html" +
-      (oi || t ? ("?oi=" + encodeURIComponent(oi) + "&t=" + encodeURIComponent(t)) : "");
+    const url = "../postulacion.html" +
+    (oi || t ? ("?oi=" + encodeURIComponent(oi) + "&t=" + encodeURIComponent(t)) : "");
     window.location.href = url;
   }
 
