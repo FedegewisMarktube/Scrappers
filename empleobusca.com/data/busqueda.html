@@ -157,6 +157,47 @@
         max-width: 180px;
       }
     }
+    /* ===== Layout 2 columnas (como páginas normales) ===== */
+.layout{
+  display:grid;
+  grid-template-columns: 1fr 360px;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.col_detail{
+  position: sticky;
+  top: 86px; /* queda abajo de la topbar */
+  height: calc(100vh - 110px);
+}
+
+.detail_box{
+  background:#fff;
+  border:1px solid #e1e5ea;
+  border-radius: 12px;
+  overflow:hidden;
+}
+
+.detail_title{
+  padding: 14px 16px;
+  border-bottom:1px solid #e1e5ea;
+  font-weight:700;
+}
+
+.detail_content{
+  padding: 14px 16px;
+  max-height: calc(100vh - 170px);
+  overflow:auto;
+  color:#313944;
+  line-height: 1.45;
+}
+
+/* Mobile: 1 columna */
+@media (max-width: 900px){
+  .layout{ grid-template-columns: 1fr; }
+  .col_detail{ position: static; height:auto; }
+  .detail_content{ max-height: none; }
+}
   </style>
 </head>
 
@@ -182,7 +223,18 @@
       <p class="muted" id="subtitulo"></p>
     </div>
 
-    <div id="resultados"></div>
+    <div class="layout">
+  <div id="resultados" class="col_list"></div>
+
+  <aside id="panel_detalle" class="col_detail">
+    <div class="detail_box">
+      <div class="detail_title">Detalle</div>
+      <div id="detalle_contenido" class="detail_content">
+        Seleccioná una oferta para ver la descripción.
+      </div>
+    </div>
+  </aside>
+</div>
   </div>
 
   <script src="./busqueda.js"></script>
