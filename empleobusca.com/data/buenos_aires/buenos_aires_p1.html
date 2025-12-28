@@ -5622,27 +5622,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
 <script>
 (function () {
-  function getOfferIdFromEl(el) {
-    // 1) Si viene de Computrabajo, suele estar acá:
-    const hrefApply = el.getAttribute("data-href-offer-apply") || el.getAttribute("data-href-offer-apply".toLowerCase());
-    if (hrefApply) {
-      try {
-        const u = new URL(hrefApply, window.location.origin);
-        const oi = u.searchParams.get("oi");
-        if (oi) return oi;
-      } catch (e) {}
+ function getOfferTitleFromEl(el) {
+  // 1) Si el click viene desde la tarjeta (lista izquierda)
+  const art = el.closest("article.box_offer");
+  if (art) {
+    const h2 = art.querySelector("h2");
+    if (h2) {
+      const t = (h2.textContent || "").replace(/\s+/g, " ").trim();
+      if (t) return t;
     }
-
-    // 2) Si está como atributo oi="...." en shortcuts
-    const oiAttr = el.getAttribute("oi");
-    if (oiAttr) return oiAttr;
-
-    // 3) Si está dentro de un artículo con data-id
-    const article = el.closest("article[data-id]");
-    if (article) return article.getAttribute("data-id");
-
-    return "";
   }
+
+  // 2) Si el click viene desde el panel derecho, buscamos el título de detalle
+  // (ajustamos selectores a algo "título real", evitando textos tipo "reportar")
+  const candidates = [
+    ".box_detail h1",
+    ".box_detail h2",
+    ".box_detail .title_offer h1",
+    ".box_detail .title_offer h2",
+  ];
+
+  for (const sel of candidates) {
+    const node = document.querySelector(sel);
+    if (node) {
+      const t = (node.textContent || "").replace(/\s+/g, " ").trim();
+      if (t && !/reportar\s+este\s+aviso/i.test(t)) return t;
+    }
+  }
+
+  return "";
+}
+
 
   function getOfferTitleFromEl(el) {
     // Intentar sacar el título visible de la oferta seleccionada/detalle
