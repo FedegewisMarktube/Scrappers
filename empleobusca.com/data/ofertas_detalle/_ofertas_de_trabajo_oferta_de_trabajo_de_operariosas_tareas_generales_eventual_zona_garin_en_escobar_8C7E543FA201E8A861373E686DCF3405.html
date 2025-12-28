@@ -3052,22 +3052,29 @@
 }] }</script>
 
     <script>
-    document.addEventListener('click', function (e) {
+    (function () {
+      function shouldBlock(a) {
+        var href = (a.getAttribute('href') || '').toLowerCase();
+        var txt  = (a.textContent || '').toLowerCase().replace(/\s+/g,' ').trim();
 
-      const a = e.target.closest('a');
-      if (!a) return;
+        if (href.includes('/evaluaciones') || href.includes('/salarios')) return true;
+        if (txt.includes('mostrar') && txt.includes('evaluaciones')) return true;
+        if (txt.includes('mostrar') && txt.includes('salarios')) return true;
 
-      if (
-        a.textContent.match(/mostrar\s+las?\s+\d+\s+(evaluaciones|salarios)/i) ||
-        a.getAttribute('lnk-section') === 'evaluaciones' ||
-        a.getAttribute('lnk-section') === 'salarios'
-      ) {
-        e.preventDefault();
-        e.stopPropagation();
         return false;
       }
 
-    });
+      document.addEventListener('click', function (e) {
+        var a = e.target.closest && e.target.closest('a');
+        if (!a) return;
+
+        if (shouldBlock(a)) {
+          e.preventDefault();
+          e.stopPropagation();
+          a.style.cursor = 'default';
+        }
+      }, true);
+    })();
     </script>
 </body>
 
