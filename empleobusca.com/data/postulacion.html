@@ -186,9 +186,10 @@
     if (/reportar\s+este\s+aviso/i.test(t)) t = "";
 
     const offerInfo = document.getElementById("offerInfo");
-    if (oi) {
+    
+    if (oi && t) {
     offerInfo.style.display = "block";
-    offerInfo.textContent = t ? `Oferta: ${t} · ID: ${oi}` : `ID de oferta: ${oi}`;
+    offerInfo.textContent = t;
     }
 
     document.getElementById("btnCancelar").addEventListener("click", () => {
