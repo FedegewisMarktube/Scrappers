@@ -148,15 +148,22 @@
        ✅ PANEL DERECHO (ÚNICO)
        ========================= */
     .box_detail{
-      background:#fff;
-      position:sticky;
-      top:86px;
-      height: calc(100vh - 110px);
-      overflow-y:auto;
-      overflow-x:hidden;
-      border:1px solid #e1e5ea;
-      border-radius:10px;
-      padding:0 30px 30px;
+     background:#fff;
+    position:sticky;
+    top:86px;
+    height: calc(100vh - 110px);
+    overflow-y:auto;
+    overflow-x:hidden;
+    border:1px solid #e1e5ea;
+    border-radius:10px;
+
+    /* ✅ CLAVE: antes tenías padding acá */
+    padding:0;
+    }
+
+    /* ✅ el padding va acá (como en las páginas) */
+    #detalle_contenido{
+      padding: 20px 25px;
     }
 
     /* Separadores como en páginas */
@@ -233,7 +240,6 @@
 
       <!-- Panel derecho -->
       <aside class="box_detail" data-offers-grid-box-detail>
-        <div class="hide" data-offers-grid-detail-container></div>
 
         <div class="box_border" id="detalle_contenido">
           Seleccioná una oferta para ver la descripción.
