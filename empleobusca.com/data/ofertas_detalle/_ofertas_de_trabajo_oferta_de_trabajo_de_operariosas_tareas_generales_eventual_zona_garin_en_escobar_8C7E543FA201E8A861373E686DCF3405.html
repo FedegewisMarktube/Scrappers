@@ -3052,55 +3052,55 @@
 }] }</script>
 
     
-    <script>
+ <script>
 (function () {
-  function isEvalSalaryLink(a) {
-    var href = (a.getAttribute('href') || '').toLowerCase();
-    var txt  = (a.textContent || '').toLowerCase().replace(/\s+/g,' ').trim();
+  function norm(s){ return (s||"").toLowerCase(); }
 
-    // Por URL (los tuyos son /empresa/evaluaciones y /empresa/salarios)
-    if (href.includes('/evaluaciones') || href.includes('/salarios')) return true;
+  function isBlocked(a) {
+    var href = norm(a.getAttribute('href'));
+    var txt  = norm(a.textContent).replace(/\s+/g,' ').trim();
 
-    // Por texto (con miles: 3,573 / 3.573)
+    // Bloqueo por URL (relativa o absoluta, GitHub Pages o lo que sea)
+    if (href.includes('/evaluaciones') || href.includes('evaluaciones')) return true;
+    if (href.includes('/salarios') || href.includes('salarios')) return true;
+
+    // Bloqueo por texto (con miles 3,573 / 3.573)
     if (/mostrar\s+las?\s+[\d.,]+\s+evaluaciones/.test(txt)) return true;
     if (/mostrar\s+los\s+[\d.,]+\s+salarios/.test(txt)) return true;
 
     return false;
   }
 
-  function disableLink(a) {
-    // Lo “mata” de verdad
+  function killLink(a) {
+    // lo desactiva de verdad
     a.removeAttribute('href');
     a.removeAttribute('target');
-
-    // Visual “desactivado”
     a.style.pointerEvents = 'none';
     a.style.cursor = 'default';
     a.style.opacity = '0.6';
   }
 
-  // 1) Al cargar: desactiva todos los links ya presentes
   function run() {
     document.querySelectorAll('a').forEach(function(a){
-      if (isEvalSalaryLink(a)) disableLink(a);
+      if (isBlocked(a)) killLink(a);
     });
   }
 
+  // desactiva al cargar
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', run);
   } else {
     run();
   }
 
-  // 2) Extra: por si algo re-inyecta el href, también bloquea el click en capture
-  document.addEventListener('click', function (e) {
+  // y también bloquea cualquier click aunque se regenere
+  document.addEventListener('click', function(e){
     var a = e.target.closest && e.target.closest('a');
     if (!a) return;
-
-    if (isEvalSalaryLink(a)) {
+    if (isBlocked(a)) {
       e.preventDefault();
       e.stopPropagation();
-      disableLink(a);
+      killLink(a);
       return false;
     }
   }, true);
