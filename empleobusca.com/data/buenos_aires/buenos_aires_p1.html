@@ -9,14 +9,15 @@
 <meta content="8" name="meta_ctv"/>
 <meta content="(+10,000,000)" name="android_downloads"/>
 <meta content="com.redarbor.computrabajo" name="google-play-app"/>
-<link crossorigin="" href="https://cp.ct-stc.com" rel="preconnect"/>
+
 
 <meta content="Empleos en Buenos Aires | Ofertas de trabajo Diciembre 2025 " name="title"/><meta content="¿Buscas trabajo en Buenos Aires? Crea tu CV y aplica a los empleos desde hoy de manera fácil, rápida y gratis. ¡Nuevas ofertas cada día!" name="description"/><meta content="Ofertas de empleo en Buenos Aires" name="h1"/><meta content="200" name="respsta"/>
-<meta content="Empleos en Buenos Aires | Ofertas de trabajo Diciembre 2025 " property="og:title"/><meta content="¿Buscas trabajo en Buenos Aires? Crea tu CV y aplica a los empleos desde hoy de manera fácil, rápida y gratis. ¡Nuevas ofertas cada día!" property="og:description"/><meta content="website" property="og:type"/><meta content="https://ar.computrabajo.com/empleos-en-buenos-aires" property="og:url"/><meta content="//cp.ct-stc.com/web8/20251204.01_01.27/c/img/logos/logoct-ogp.png" property="og:image"/><meta content="1200" property="og:image:width"/><meta content="630" property="og:image:height"/>
+<meta content="Empleos en Buenos Aires | Ofertas de trabajo Diciembre 2025 " property="og:title"/><meta content="¿Buscas trabajo en Buenos Aires? Crea tu CV y aplica a los empleos desde hoy de manera fácil, rápida y gratis. ¡Nuevas ofertas cada día!" property="og:description"/>
 <link href='../miniLogo_Empleo_Busca.png' rel="shortcut icon" type="image/x-icon"/>
 <link rel="preload" as="font" href="../CSS/ct_bold_font.woff2" type="font/woff2" crossorigin>
 <link rel="preload" as="font" href="../CSS/ct_regular_font.woff2" type="font/woff2" crossorigin>
 <link rel="preload" as="font" href="../CSS/ct_bold_font.woff2" type="font/woff2" crossorigin>
+
 <script>
 (function () {
   const isCT = (u) => {
@@ -5693,6 +5694,77 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     })();
     </script>
+
+<script>
+(function () {
+
+  function getOfferIdFromEl(el) {
+    const hrefApply = el.getAttribute("data-href-offer-apply");
+    if (hrefApply) {
+      try {
+        const u = new URL(hrefApply, window.location.origin);
+        const oi = u.searchParams.get("oi");
+        if (oi) return oi;
+      } catch (e) {}
+    }
+
+    const oiAttr = el.getAttribute("oi");
+    if (oiAttr) return oiAttr;
+
+    const art = el.closest("article.box_offer[id]");
+    if (art) return art.id;
+
+    return "";
+  }
+
+  function getTitleFromOfferId(oi) {
+    if (!oi) return "";
+    const art = document.getElementById(oi);
+    if (!art) return "";
+
+    const h2 = art.querySelector("h2");
+    if (!h2) return "";
+
+    return (h2.textContent || "").replace(/\s+/g, " ").trim();
+  }
+
+  function goToForm(el) {
+    const oi = getOfferIdFromEl(el);
+    const t  = getTitleFromOfferId(oi);
+
+    const url =
+      "../postulacion.html" +
+      (oi ? ("?oi=" + encodeURIComponent(oi) + (t ? "&t=" + encodeURIComponent(t) : "")) : "");
+
+    window.location.href = url;
+  }
+
+  function bindOnlyApplyButtons() {
+    // SOLO botones reales de postulación (evita “reportar”, “guardar”, etc.)
+    const applyButtons = Array.from(document.querySelectorAll(
+      "[data-apply-link][data-href-offer-apply], [shortcut-apply-ac][data-href-offer-apply]"
+    ));
+
+    applyButtons.forEach(el => {
+      if (el.__boundApply) return;
+      el.__boundApply = true;
+
+      el.style.cursor = "pointer";
+      el.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        goToForm(el);
+      }, true);
+    });
+  }
+
+  bindOnlyApplyButtons();
+
+  const mo = new MutationObserver(() => bindOnlyApplyButtons());
+  mo.observe(document.documentElement, { childList: true, subtree: true });
+
+})();
+</script>
 
 
 <script>
