@@ -5829,54 +5829,57 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 
 
-
 <script>
 (function () {
-  const input = document.getElementById('prof-cat-search-input');
-  const boton = document.getElementById('search-button');
-
+  const input = document.getElementById("prof-cat-search-input");
+  const boton = document.getElementById("search-button");
   if (!input || !boton) return;
 
-  function irABusquedaGlobal() {
-    const term = (input.value || '').trim();
+  // ✅ esta página está en /buenos_aires/, entonces busqueda.html está 1 nivel arriba
+  // Si querés “solo Buenos Aires”, mandamos también el parámetro city=buenos_aires
+  const CITY = "buenos_aires";
+
+  function irABusquedaBuenosAires() {
+    const term = (input.value || "").trim();
     if (!term) return;
 
-    // carpeta actual (ej: /data/ o /data/buenos_aires/)
-    const baseDir = window.location.pathname.replace(/\/[^\/]*$/, '/');
-
-    // Ajustá si tu busqueda.html está en otra carpeta:
-    const target = baseDir + 'busqueda.html?q=' + encodeURIComponent(term);
+    // ✅ sube un nivel: /buenos_aires/ -> /
+    const target = "../busqueda.html?q=" + encodeURIComponent(term) + "&city=" + CITY;
 
     window.location.href = target;
   }
 
-  // Click en el botón (captura, para ganarle a otros scripts)
-  boton.addEventListener('click', function (e) {
+  // Click en el botón (captura para ganarle a otros scripts)
+  boton.addEventListener("click", function (e) {
     e.preventDefault();
     e.stopPropagation();
-    irABusquedaGlobal();
+    if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+    irABusquedaBuenosAires();
   }, true);
 
   // Enter dentro del input
-  input.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') {
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
       e.preventDefault();
       e.stopPropagation();
-      irABusquedaGlobal();
+      if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+      irABusquedaBuenosAires();
     }
   }, true);
 
   // Por si el input está dentro de un <form>
-  const form = input.closest('form');
+  const form = input.closest("form");
   if (form) {
-    form.addEventListener('submit', function (e) {
+    form.addEventListener("submit", function (e) {
       e.preventDefault();
       e.stopPropagation();
-      irABusquedaGlobal();
+      if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+      irABusquedaBuenosAires();
     }, true);
   }
 })();
 </script>
+
 
 
 </body>
