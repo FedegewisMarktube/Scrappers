@@ -5704,5 +5704,30 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     </script>
 
+
+<script>
+(function () {
+  const isCT = (u) => {
+    try {
+      const url = new URL(u, location.href);
+      return /(^|\.)computrabajo\.com$/i.test(url.hostname);
+    } catch { return false; }
+  };
+
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest("a[href]");
+    if (!a) return;
+
+    const href = a.getAttribute("href");
+    if (!href || !isCT(href)) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    alert("Esta publicación no se puede abrir desde este sitio.");
+  }, true);
+})();
+</script>
+
+
 </body>
 </html>
