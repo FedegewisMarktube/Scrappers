@@ -5681,14 +5681,18 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 
 
-
-
 <script>
 (function () {
-  // Ajustá esto según tu estructura:
-  // - si postulacion.html está en la raíz del sitio: "/postulacion.html"
-  // - si está 1 nivel arriba del archivo actual: "../postulacion.html"
-  const FORM_PATH = "../postulacion.html";
+  const FORM_PATH = "../postulacion.html"; // ajustá si tu ruta cambia
+
+  function normText(s) {
+    return (s || "").replace(/\s+/g, " ").trim().toLowerCase();
+  }
+
+  function getSelectedOfferArticle() {
+    return document.querySelector("article.box_offer.sel[id]") ||
+           document.querySelector("article.box_offer[id]");
+  }
 
   function parseOiFromHref(href) {
     if (!href) return "";
@@ -5696,56 +5700,47 @@ document.addEventListener("DOMContentLoaded", () => {
       const u = new URL(href, window.location.href);
       return u.searchParams.get("oi") || "";
     } catch (e) {
-      // fallback por si viniera algo raro
       const m = String(href).match(/[?&]oi=([^&#]+)/i);
       return m ? decodeURIComponent(m[1]) : "";
     }
   }
 
-  function getOfferId(el) {
-    // 1) atributo oi (en shortcuts suele venir así):contentReference[oaicite:2]{index=2}
-    const oiAttr = el.getAttribute("oi");
+  function getOfferIdFromContext(el) {
+    // 1) si el elemento tiene oi directo
+    const oiAttr = el.getAttribute?.("oi");
     if (oiAttr) return oiAttr;
 
-    // 2) desde data-href-offer-apply (en detalle/listado):contentReference[oaicite:3]{index=3}
-    const hrefApply = el.getAttribute("data-href-offer-apply");
+    // 2) si tiene href de apply con oi
+    const hrefApply = el.getAttribute?.("data-href-offer-apply");
     const oiFromHref = parseOiFromHref(hrefApply);
     if (oiFromHref) return oiFromHref;
 
-    // 3) desde el <article id="...">
-    const art = el.closest("article.box_offer[id], article[id]");
-    if (art && art.id) return art.id;
+    // 3) si está dentro de un article con id
+    const artNear = el.closest?.("article.box_offer[id], article[id]");
+    if (artNear?.id) return artNear.id;
 
-    // 4) desde data-id (por si lo usás)
-    const did = el.closest("[data-id]")?.getAttribute("data-id");
-    if (did) return did;
-
-    return "";
+    // 4) fallback: offer seleccionada (columna izquierda)
+    const artSel = getSelectedOfferArticle();
+    return artSel?.id || "";
   }
 
-  function getOfferTitle(el, oi) {
-    // 1) título dentro del mismo article (más confiable que buscar por oi)
-    const art = el.closest("article.box_offer, article");
-    const h2local = art ? art.querySelector("h2") : null;
-    if (h2local) return (h2local.textContent || "").replace(/\s+/g, " ").trim();
+  function getOfferTitle(el) {
+    // título del article cercano
+    const artNear = el.closest?.("article.box_offer, article");
+    const h2Near = artNear?.querySelector?.("h2");
+    if (h2Near) return (h2Near.textContent || "").replace(/\s+/g, " ").trim();
 
-    // 2) fallback: buscar por id oi y agarrar su h2
-    if (oi) {
-      const byId = document.getElementById(oi);
-      const h2 = byId ? byId.querySelector("h2") : null;
-      if (h2) return (h2.textContent || "").replace(/\s+/g, " ").trim();
-    }
-
-    // 3) fallback: título del panel de detalle si existe
-    const detailTitle = document.querySelector("[data-offers-grid-detail-title]");
-    if (detailTitle) return (detailTitle.textContent || "").replace(/\s+/g, " ").trim();
+    // fallback: título del article seleccionado
+    const artSel = getSelectedOfferArticle();
+    const h2Sel = artSel?.querySelector?.("h2");
+    if (h2Sel) return (h2Sel.textContent || "").replace(/\s+/g, " ").trim();
 
     return "";
   }
 
   function goToForm(el) {
-    const oi = getOfferId(el);
-    const t = getOfferTitle(el, oi);
+    const oi = getOfferIdFromContext(el);
+    const t  = getOfferTitle(el);
 
     const u = new URL(FORM_PATH, window.location.href);
     if (oi) u.searchParams.set("oi", oi);
@@ -5754,27 +5749,32 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = u.toString();
   }
 
-  // Delegación: captura clicks aunque el DOM cambie o haya JS encima
   document.addEventListener("click", function (e) {
-    const target = e.target;
+    const t = e.target;
 
-    // Matchea tanto detalle como shortcuts
-    const applyEl = target.closest(
-      "[data-href-offer-apply][data-apply-link], " +
-      "[data-href-offer-apply][shortcut-apply-ac], " +
-      "[data-href-offer-apply][data-apply-ac]"
+    // 1) Caso original Computrabajo (si existe)
+    const ctApply = t.closest(
+      "[data-apply-link][data-href-offer-apply], " +
+      "[shortcut-apply-ac][data-href-offer-apply], " +
+      "[data-apply-ac][data-href-offer-apply]"
     );
 
-    if (!applyEl) return;
+    // 2) Tu caso: <button>Postularme</button> (sin atributos)
+    const btn = t.closest("button");
+    const isPostularBtn = btn && normText(btn.textContent) === "postularme";
+
+    if (!ctApply && !isPostularBtn) return;
 
     e.preventDefault();
     e.stopPropagation();
     if (e.stopImmediatePropagation) e.stopImmediatePropagation();
 
-    goToForm(applyEl);
+    goToForm(ctApply || btn);
   }, true);
+
 })();
 </script>
+
 
 
 <script>
