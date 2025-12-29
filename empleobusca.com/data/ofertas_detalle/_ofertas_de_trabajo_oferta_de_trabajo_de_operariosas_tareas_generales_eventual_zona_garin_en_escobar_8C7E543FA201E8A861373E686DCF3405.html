@@ -3051,31 +3051,63 @@
 
 }] }</script>
 
+    
     <script>
-    (function () {
-      function shouldBlock(a) {
-        var href = (a.getAttribute('href') || '').toLowerCase();
-        var txt  = (a.textContent || '').toLowerCase().replace(/\s+/g,' ').trim();
+(function () {
+  function isEvalSalaryLink(a) {
+    var href = (a.getAttribute('href') || '').toLowerCase();
+    var txt  = (a.textContent || '').toLowerCase().replace(/\s+/g,' ').trim();
 
-        if (href.includes('/evaluaciones') || href.includes('/salarios')) return true;
-        if (txt.includes('mostrar') && txt.includes('evaluaciones')) return true;
-        if (txt.includes('mostrar') && txt.includes('salarios')) return true;
+    // Por URL (los tuyos son /empresa/evaluaciones y /empresa/salarios)
+    if (href.includes('/evaluaciones') || href.includes('/salarios')) return true;
 
-        return false;
-      }
+    // Por texto (con miles: 3,573 / 3.573)
+    if (/mostrar\s+las?\s+[\d.,]+\s+evaluaciones/.test(txt)) return true;
+    if (/mostrar\s+los\s+[\d.,]+\s+salarios/.test(txt)) return true;
 
-      document.addEventListener('click', function (e) {
-        var a = e.target.closest && e.target.closest('a');
-        if (!a) return;
+    return false;
+  }
 
-        if (shouldBlock(a)) {
-          e.preventDefault();
-          e.stopPropagation();
-          a.style.cursor = 'default';
-        }
-      }, true);
-    })();
-    </script>
+  function disableLink(a) {
+    // Lo “mata” de verdad
+    a.removeAttribute('href');
+    a.removeAttribute('target');
+
+    // Visual “desactivado”
+    a.style.pointerEvents = 'none';
+    a.style.cursor = 'default';
+    a.style.opacity = '0.6';
+  }
+
+  // 1) Al cargar: desactiva todos los links ya presentes
+  function run() {
+    document.querySelectorAll('a').forEach(function(a){
+      if (isEvalSalaryLink(a)) disableLink(a);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
+
+  // 2) Extra: por si algo re-inyecta el href, también bloquea el click en capture
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a');
+    if (!a) return;
+
+    if (isEvalSalaryLink(a)) {
+      e.preventDefault();
+      e.stopPropagation();
+      disableLink(a);
+      return false;
+    }
+  }, true);
+})();
+</script>
+
+
 </body>
 
 </html>
