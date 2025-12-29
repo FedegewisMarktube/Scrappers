@@ -1,7 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
-  const queryRaw = (params.get("q") || "").trim();
+  const queryRaw = (params.get('q') || '').trim();
   const query = queryRaw.toLowerCase();
+
+  // ✅ ciudad opcional (ej: buenos_aires)
+  const cityParam = (params.get('city') || '').trim().toLowerCase();
 
   const titulo = document.getElementById("titulo");
   const subtitulo = document.getElementById("subtitulo");
@@ -27,11 +30,16 @@ document.addEventListener("DOMContentLoaded", () => {
   titulo.innerText = `Resultados para: "${queryRaw}"`;
   subtitulo.innerText = "Buscando en todas las ciudades y páginas…";
 
-  const ciudades = [
-    { nombre: "Buenos Aires", slug: "buenos_aires" },
-    { nombre: "Córdoba", slug: "cordoba" },
-    { nombre: "Mendoza", slug: "mendoza" },
+  const TODAS_CIUDADES = [
+  { nombre: 'Buenos Aires', slug: 'buenos_aires' },
+  { nombre: 'Córdoba', slug: 'cordoba' },
+  { nombre: 'Mendoza', slug: 'mendoza' }
   ];
+
+  // ✅ si viene city=..., filtramos
+  const ciudades = cityParam
+    ? TODAS_CIUDADES.filter(c => c.slug === cityParam)
+    : TODAS_CIUDADES;
 
   const MAX_PAGINAS = 50;
   let totalEncontrados = 0;
@@ -209,7 +217,9 @@ document.addEventListener("DOMContentLoaded", () => {
       detailContainer.innerHTML = "No hay resultados para mostrar.";
     }
 
-    subtitulo.innerText = `Resultados encontrados: ${totalEncontrados}`;
+    subtitulo.innerText = cityParam
+    ? 'Buscando solo en Buenos Aires…'
+    : 'Buscando en todas las ciudades y páginas…';
 
     // ✅ auto-seleccionar primera oferta
     const first = contenedor.querySelector(".box_offer");
