@@ -5721,5 +5721,58 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+<script>
+(function () {
+  const input = document.getElementById("prof-cat-search-input");
+  const boton = document.getElementById("search-button");
+  if (!input || !boton) return;
+
+  // ✅ esta página está en /buenos_aires/, entonces busqueda.html está 1 nivel arriba
+  // Si querés “solo Buenos Aires”, mandamos también el parámetro city=buenos_aires
+  const CITY = "buenos_aires";
+
+  function irABusquedaBuenosAires() {
+    const term = (input.value || "").trim();
+    if (!term) return;
+
+    // ✅ sube un nivel: /buenos_aires/ -> /
+    const target = "../busqueda.html?q=" + encodeURIComponent(term) + "&city=" + CITY;
+
+    window.location.href = target;
+  }
+
+  // Click en el botón (captura para ganarle a otros scripts)
+  boton.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+    irABusquedaBuenosAires();
+  }, true);
+
+  // Enter dentro del input
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+      irABusquedaBuenosAires();
+    }
+  }, true);
+
+  // Por si el input está dentro de un <form>
+  const form = input.closest("form");
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+      irABusquedaBuenosAires();
+    }, true);
+  }
+})();
+</script>
+
+
+
 </body>
 </html>
