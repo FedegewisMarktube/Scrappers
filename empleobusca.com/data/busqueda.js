@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderDetalle(data) {
     const desc = buildDescripcionHtml(data.descripcionHtml);
 
-    detailContainer.innerHTML = `
+    detalle_contenido.innerHTML = `
       <p class="fs28 fwB mb10">${escapeHtml(data.titulo)}</p>
 
       <p class="fs22 fwB">${escapeHtml(data.empresa)}</p>

@@ -135,31 +135,67 @@
     /* =========================
        ✅ LAYOUT 2 COLUMNAS (ÚNICO)
        ========================= */
-    .layout{
-      display:grid;
-      grid-template-columns: 58% 42%;
-      gap: 15px;
-      margin-top:16px;
-      align-items:start;
-    }
-    .col_list{ min-width:0; }
+      /* ===== Layout igual a BA: lista | divisor | detalle ===== */
+.layout{
+  display:grid;
+  grid-template-columns: 520px 10px 1fr;  /* ✅ lista fija + divisor + detalle flexible */
+  gap: 16px;
+  margin-top:16px;
+  align-items:start;
+}
 
-    /* =========================
-       ✅ PANEL DERECHO (ÚNICO)
-       ========================= */
-    .box_detail{
-     background:#fff;
-    position:sticky;
-    top:86px;
-    height: calc(100vh - 110px);
-    overflow-y:auto;
-    overflow-x:hidden;
-    border:1px solid #e1e5ea;
-    border-radius:10px;
+/* Alto fijo y scroll interno como BA */
+.list_scroll,
+.detail_scroll{
+  height: calc(100vh - 220px); /* ✅ ajusta si tu header es más chico/grande */
+  overflow-y: auto;
+}
 
-    /* ✅ CLAVE: antes tenías padding acá */
-    padding:0;
-    }
+/* Caja izquierda (contenedor) */
+.col_list{
+  background: transparent;
+}
+
+/* divisor vertical del medio (esa “barrita”) */
+.col_divider{
+  width:10px;
+  border-radius:999px;
+  background:#e1e5ea;
+  height: calc(100vh - 220px);
+  margin-top: 0;
+}
+
+/* Columna derecha */
+.col_detail{
+  min-width:0;
+}
+
+/* Card blanca dentro del panel derecho */
+.detail_card{
+  background:#fff;
+  border:1px solid #e1e5ea;
+  border-radius:12px;
+  padding: 20px 25px;
+}
+
+/* Cards de la lista (izquierda) */
+.box_offer{
+  padding:20px 25px;
+  margin:0 0 15px;
+  cursor:pointer;
+  border:1px solid #e1e5ea;
+  border-radius:12px;
+  background:#fff;
+}
+.box_offer:hover{ box-shadow:3px 3px 6px rgba(0,0,0,0.10); }
+.box_offer.sel{ border-color:#0D3878; }
+
+/* Responsive */
+@media (max-width: 980px){
+  .layout{ grid-template-columns: 1fr; }
+  .col_divider{ display:none; }
+  .list_scroll, .detail_scroll{ height:auto; overflow:visible; }
+}
 
     /* ✅ el padding va acá (como en las páginas) */
     #detalle_contenido{
@@ -236,13 +272,17 @@
     </div>
 
     <div class="layout">
-      <div id="resultados" class="col_list"></div>
+      <div class="col_list">
+        <div id="resultados" class="list_scroll"></div>
+      </div>
 
-      <!-- Panel derecho -->
-      <aside class="box_detail" data-offers-grid-box-detail>
+      <div class="col_divider" aria-hidden="true"></div>
 
-        <div class="box_border" id="detalle_contenido">
-          Seleccioná una oferta para ver la descripción.
+      <aside class="col_detail">
+        <div class="detail_scroll">
+          <div id="detalle_contenido" class="detail_card">
+            Seleccioná una oferta para ver la descripción.
+          </div>
         </div>
       </aside>
     </div>
