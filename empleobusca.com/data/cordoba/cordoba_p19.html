@@ -5332,95 +5332,123 @@ Nos tomamos muy en serio tus comentarios y lo revisaremos lo antes posible.</p><
 <script defer="" src="//cp.ct-stc.com/web8/20251126.01_01.26/c/bundles/js/cookie-consent.bundle.min.js?v=gDF84VSsYjz7eUdcCh_xtz-wlic"></script>
 <mon name="8473B2EC4866954E9FB9B40B89D128FF"></mon>
 <input id="useLoginSecure" type="hidden" value="true">
-</input><script data-custom-ofertas="1">document.addEventListener('DOMContentLoaded', function () {
+</input><script data-custom-ofertas="1">
+document.addEventListener('DOMContentLoaded', function () {
 
-    const offers = document.querySelectorAll('.box_offer');
-    const detailBox = document.querySelector('[data-offers-grid-box-detail]');
-    if (!detailBox) return;
+  const offers = Array.from(document.querySelectorAll('.box_offer'));
+  const detailBox = document.querySelector('[data-offers-grid-box-detail]');
+  if (!detailBox || offers.length === 0) return;
 
-    const detailContainer = detailBox.querySelector('[data-offers-grid-detail-container]');
-    if (!detailContainer) return;
+  const detailContainer = detailBox.querySelector('[data-offers-grid-detail-container]');
+  if (!detailContainer) return;
 
-    offers.forEach(offer => {
-        offer.addEventListener('click', () => {
+  function escapeHtml(str) {
+    return String(str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
 
-            // 🚫 SI YA ESTÁ SELECCIONADA, NO HAGAS NADA
-            if (offer.classList.contains('sel')) return;
+  function buildDescriptionHtml(descDiv) {
+    const lines = Array.from(descDiv.querySelectorAll('p'))
+      .map(p => (p.innerText || "").trim())
+      .filter(Boolean);
 
-             // limpiar selección anterior
-            document.querySelectorAll('.box_offer.sel')
-            .forEach(o => o.classList.remove('sel'));
-
-            // marcar la nueva
-            offer.classList.add('sel');
-
-            // marcar oferta seleccionada en la lista
-            document.querySelectorAll('.box_offer.sel').forEach(o => o.classList.remove('sel'));
-            offer.classList.add('sel');
-
-            const title   = (offer.querySelector('h2') || {}).innerText || '';
-            const company = (offer.querySelector('p:nth-of-type(1)') || {}).innerText || '';
-            const place   = (offer.querySelector('p:nth-of-type(2)') || {}).innerText || '';
-            const descDiv = offer.querySelector('.descripcion_scrapeada');
-
-            if (!descDiv) return;
-
-            const lines = Array.from(descDiv.querySelectorAll('p'))
-                .map(p => p.innerText.trim())
-                .filter(p => p.length > 0);
-
-            let html = "";
-
-            lines.forEach(line => {
-                // bullets con - o *
-                if (/^\s*[-*]\s+/.test(line)) {
-                    const txt = line.replace(/^\s*[-*]\s+/, "");
-                    html += `<p style="margin:0 0 8px 0;">• ${txt}</p>`;
-                } else {
-                    // párrafo normal
-                    html += `<p style="margin:0 0 10px 0;">${line}</p>`;
-                }
-            });
-
-            detailContainer.classList.remove('hide');
-
-            detailContainer.innerHTML = `
-                <div class="box_border" style="padding:20px;">
-
-                    <h1 class="fs22 fwB" style="margin-bottom:5px;">
-                        ${title}
-                    </h1>
-
-                    <p class="fwB" style="margin:0;">${company}</p>
-                    <p style="margin:0 0 15px 0;">${place}</p>
-
-                    <div style="margin:15px 0;">
-                        <button style="
-                            background:#0D3878;
-                            color:#fff;
-                            padding:10px 20px;
-                            border-radius:25px;
-                            border:none;
-                            font-weight:bold;
-                            cursor:pointer;">
-                            Postularme
-                        </button>
-                    </div>
-
-                    <div style="font-size:15px; line-height:1.5;">
-                        ${html}
-                    </div>
-
-                </div>
-            `;
-        });
-    });
-
-    // dispara la primera oferta al cargar
-    if (offers.length > 0) {
-        offers[0].click();
+    let html = "";
+    for (const line of lines) {
+      if (/^\s*[-*]\s+/.test(line)) {
+        const txt = line.replace(/^\s*[-*]\s+/, "");
+        html += `<p style="margin:0 0 8px 0;">• ${escapeHtml(txt)}</p>`;
+      } else {
+        html += `<p style="margin:0 0 10px 0;">${escapeHtml(line)}</p>`;
+      }
     }
-});</script>
+    return html;
+  }
+
+  function goToForm(oi, title) {
+    // Ajustá la ruta si tu postulacion.html está en otro lugar
+    let url = "../postulacion.html";
+    if (oi) {
+      url += "?oi=" + encodeURIComponent(oi);
+      if (title) url += "&t=" + encodeURIComponent(title);
+    }
+    window.location.href = url;
+  }
+
+  function renderOffer(offer) {
+    // marcar selección (una sola vez, sin duplicados)
+    document.querySelectorAll('.box_offer.sel').forEach(o => o.classList.remove('sel'));
+    offer.classList.add('sel');
+
+    const title   = (offer.querySelector('h2')?.innerText || "").trim();
+    const company = (offer.querySelector('p:nth-of-type(1)')?.innerText || "").trim();
+    const place   = (offer.querySelector('p:nth-of-type(2)')?.innerText || "").trim();
+    const descDiv = offer.querySelector('.descripcion_scrapeada');
+    if (!descDiv) return;
+
+    const oi = offer.id || offer.getAttribute("id") || "";
+
+    // Guardar contexto en el contenedor (por si lo querés usar después)
+    detailContainer.dataset.oi = oi;
+    detailContainer.dataset.title = title;
+
+    const htmlDesc = buildDescriptionHtml(descDiv);
+
+    detailContainer.classList.remove('hide');
+    detailContainer.innerHTML = `
+      <div class="box_border" style="padding:20px;">
+        <h1 class="fs22 fwB" style="margin-bottom:5px;">${escapeHtml(title)}</h1>
+        <p class="fwB" style="margin:0;">${escapeHtml(company)}</p>
+        <p style="margin:0 0 15px 0;">${escapeHtml(place)}</p>
+
+        <div style="margin:15px 0;">
+          <button id="btn-postular" type="button" style="
+            background:#0D3878;
+            color:#fff;
+            padding:10px 20px;
+            border-radius:25px;
+            border:none;
+            font-weight:bold;
+            cursor:pointer;">
+            Postularme
+          </button>
+        </div>
+
+        <div style="font-size:15px; line-height:1.5;">
+          ${htmlDesc}
+        </div>
+      </div>
+    `;
+
+    // Bind del botón recién creado
+    const btn = detailContainer.querySelector('#btn-postular');
+    if (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        goToForm(oi, title);
+      });
+    }
+  }
+
+  // listeners de click en cada oferta
+  offers.forEach(offer => {
+    offer.addEventListener('click', () => {
+      // si ya está seleccionada, no re-renderices
+      if (offer.classList.contains('sel')) return;
+      renderOffer(offer);
+    });
+  });
+
+  // dispara la primera oferta al cargar
+  renderOffer(offers[0]);
+
+});
+</script>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   // =========================
