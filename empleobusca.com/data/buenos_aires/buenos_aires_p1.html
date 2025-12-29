@@ -5829,5 +5829,55 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 
 
+
+<script>
+(function () {
+  const input = document.getElementById('prof-cat-search-input');
+  const boton = document.getElementById('search-button');
+
+  if (!input || !boton) return;
+
+  function irABusquedaGlobal() {
+    const term = (input.value || '').trim();
+    if (!term) return;
+
+    // carpeta actual (ej: /data/ o /data/buenos_aires/)
+    const baseDir = window.location.pathname.replace(/\/[^\/]*$/, '/');
+
+    // Ajustá si tu busqueda.html está en otra carpeta:
+    const target = baseDir + 'busqueda.html?q=' + encodeURIComponent(term);
+
+    window.location.href = target;
+  }
+
+  // Click en el botón (captura, para ganarle a otros scripts)
+  boton.addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    irABusquedaGlobal();
+  }, true);
+
+  // Enter dentro del input
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      irABusquedaGlobal();
+    }
+  }, true);
+
+  // Por si el input está dentro de un <form>
+  const form = input.closest('form');
+  if (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      irABusquedaGlobal();
+    }, true);
+  }
+})();
+</script>
+
+
 </body>
 </html>
