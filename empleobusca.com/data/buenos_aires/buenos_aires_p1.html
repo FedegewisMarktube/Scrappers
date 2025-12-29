@@ -5691,7 +5691,23 @@ document.addEventListener("DOMContentLoaded", () => {
 })();
 </script>
 
+<script>
+(function () {
+  var path = window.location.pathname.toLowerCase();
 
+  // Detecta paginas no habilitadas
+  if (path.includes('/evaluaciones') || path.includes('/salarios')) {
+
+    // Si hay historial, vuelve a la oferta
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      // fallback si entran directo
+      window.location.href = '/';
+    }
+  }
+})();
+</script>
 
 </body>
 </html>
