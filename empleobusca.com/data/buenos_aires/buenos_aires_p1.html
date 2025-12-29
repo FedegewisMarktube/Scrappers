@@ -5691,56 +5691,18 @@ document.addEventListener("DOMContentLoaded", () => {
 })();
 </script>
 
-<script>
-(function () {
-  var path = (location.pathname || "").toLowerCase();
+ <script>
+    (function () {
+      var path = (location.pathname || "").toLowerCase();
+      var isBlocked = /\/(evaluaciones|salarios)\/?$/.test(path);
 
-  // Detecta páginas "bloqueadas"
-  var isBlocked = /\/(evaluaciones|salarios)\/?$/.test(path);
-
-  // Clave donde guardamos la última página permitida
-  var KEY = "last_allowed_url";
-
-  // 1) Si NO es bloqueada, guardo esta URL como "última buena"
-  if (!isBlocked) {
-    try { sessionStorage.setItem(KEY, location.href); } catch (e) {}
-    return;
-  }
-
-  // 2) Si ES bloqueada: muestro mensaje y vuelvo a donde venía
-  var backTo = "";
-  try { backTo = sessionStorage.getItem(KEY) || ""; } catch (e) {}
-
-  // UI simple
-  document.documentElement.style.background = "#fff";
-  document.body.innerHTML = `
-    <div style="max-width:720px;margin:80px auto;padding:0 16px;text-align:center;font-family:Arial">
-      <h2 style="margin:0 0 12px">Sección no disponible</h2>
-      <p style="margin:0 0 18px">Las evaluaciones y salarios no se pueden ver desde este sitio.</p>
-      <button id="btnVolver" style="padding:10px 16px;border:1px solid #ccc;border-radius:10px;background:#f7f7f7;cursor:pointer">
-        Volver a la oferta
-      </button>
-    </div>
-  `;
-
-  function goBack() {
-    if (backTo && backTo !== location.href) {
-      location.replace(backTo);
-      return;
-    }
-    if (history.length > 1) {
-      history.back();
-      return;
-    }
-    location.replace("/");
-  }
-
-  document.getElementById("btnVolver").addEventListener("click", goBack);
-
-  // auto-volver en 300ms (deja ver el mensaje un instante)
-  setTimeout(goBack, 300);
-})();
-</script>
+      if (!isBlocked) {
+        try {
+          localStorage.setItem("last_allowed_url", location.href);
+        } catch (e) {}
+      }
+    })();
+    </script>
 
 </body>
 </html>
